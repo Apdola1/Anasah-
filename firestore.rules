@@ -1,0 +1,15 @@
+rules_version = '2';
+// قواعد أمان مبدئية للغرف — تسمح للاعبين المسجّلين (ولو كضيوف) باللعب.
+// ملاحظة: هذي قواعد مناسبة للتطوير والإطلاق المبكر. نشددها أكثر لاحقاً.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /rooms/{code} {
+      // أي مستخدم مسجّل دخول (يشمل الضيوف) يقدر يقرأ ويكتب الغرف
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      // ما نسمح بحذف الغرف من العميل
+      allow delete: if false;
+    }
+  }
+}

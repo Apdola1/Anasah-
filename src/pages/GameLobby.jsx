@@ -1,0 +1,107 @@
+import { useState } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { getGame } from '../games/registry'
+import { useAuth } from '../lib/auth'
+import { getSavedName, saveName } from '../lib/auth'
+import { createRoom, joinRoom } from '../lib/rooms'
+import { isFirebaseConfigured } from '../firebase'
+
+export default function GameLobby() {
+  const { gameId } = useParams()
+  const navigate = useNavigate()
+  const { user, loading } = useAuth()
+  const game = getGame(gameId)
+
+  const [name, setName] = useState(getSavedName())
+  const [code, setCode] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  if (!game) {
+    return (
+      <div className="page center">
+        <p className="muted">هذه اللعبة مو موجودة بعد.</p>
+        <Link to="/" className="btn">رجوع للألعاب</Link>
+      </div>
+    )
+  }
+
+  const ready = user && !loading
+
+  async function handleCreate() {
+    setError('')
+    if (!name.trim()) return setError('اكتب اسمك أول 🙂')
+    saveName(name.trim())
+    setBusy(true)
+    try {
+      const roomCode = await createRoom(gameId, user.uid, name.trim())
+      navigate(`/g/${gameId}/${roomCode}`)
+    } catch (e) {
+      setError(e.message)
+      setBusy(false)
+    }
+  }
+
+  async function handleJoin() {
+    setError('')
+    if (!name.trim()) return setError('اكتب اسمك أول 🙂')
+    if (code.trim().length < 4) return setError('الكود ٤ حروف')
+    saveName(name.trim())
+    setBusy(true)
+    try {
+      const roomCode = code.trim().toUpperCase()
+      await joinRoom(roomCode, user.uid, name.trim())
+      navigate(`/g/${gameId}/${roomCode}`)
+    } catch (e) {
+      setError(e.message)
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="page">
+      <Link to="/" className="back-link">← كل الألعاب</Link>
+      <div className="card-panel stack">
+        <div className="center">
+          <div className="emoji" style={{ background: game.color, margin: '0 auto 6px', fontSize: 40, width: 60, height: 60, display: 'grid', placeItems: 'center', borderRadius: 16 }}>{game.emoji}</div>
+          <h2>{game.name}</h2>
+        </div>
+
+        {!isFirebaseConfigured && (
+          <div className="notice error">
+            إعدادات Firebase ناقصة — عبّي ملف <code>.env.local</code> عشان يشتغل الأونلاين.
+          </div>
+        )}
+
+        <input
+          className="input"
+          style={{ letterSpacing: 'normal', textAlign: 'start' }}
+          placeholder="اسمك"
+          value={name}
+          maxLength={16}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        <button className="btn btn-primary" disabled={!ready || busy} onClick={handleCreate}>
+          {busy ? '…' : 'أنشئ غرفة جديدة'}
+        </button>
+
+        <div className="divider">أو انضم بكود</div>
+
+        <input
+          className="input"
+          placeholder="- - - -"
+          value={code}
+          maxLength={4}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+        />
+        <button className="btn" disabled={!ready || busy} onClick={handleJoin}>
+          انضم للغرفة
+        </button>
+
+        {error && <div className="notice error">{error}</div>}
+      </div>
+    </div>
+  )
+}

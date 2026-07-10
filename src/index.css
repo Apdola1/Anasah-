@@ -1,0 +1,134 @@
+/* ===== خطوط ثمانية (Thmanyah) ===== */
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah/thmanyahsans/woff2/thmanyahsans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah/thmanyahsans/woff2/thmanyahsans-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah/thmanyahsans/woff2/thmanyahsans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Sans';
+  src: url('/fonts/thmanyah/thmanyahsans/woff2/thmanyahsans-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Display';
+  src: url('/fonts/thmanyah/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Display';
+  src: url('/fonts/thmanyah/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-display: swap;
+}
+
+/* ===== الثيم ===== */
+:root {
+  --bg: #14101f;
+  --bg-soft: #1d1730;
+  --card: #241d3b;
+  --card-hover: #2c2447;
+  --border: #362c56;
+  --text: #ece7f7;
+  --text-dim: #a99fc4;
+  --accent: #ffb454;      /* دفء العنبر */
+  --accent-2: #ff6b81;    /* وردي دافئ */
+  --accent-3: #8b7bff;    /* بنفسجي ليلي */
+  --good: #4ade80;
+  --shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.6);
+
+  --sans: 'Thmanyah Sans', system-ui, 'Segoe UI', sans-serif;
+  --display: 'Thmanyah Display', 'Thmanyah Sans', serif;
+
+  font: 17px/1.6 var(--sans);
+  color: var(--text);
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255, 107, 129, 0.12), transparent 60%),
+    radial-gradient(900px 500px at 10% 0%, rgba(139, 123, 255, 0.14), transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+#root {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 20px 64px;
+}
+
+h1, h2, h3 {
+  font-family: var(--display);
+  color: var(--text);
+  line-height: 1.15;
+  margin: 0;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--sans); }
+
+/* ===== أزرار ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.btn:hover { background: var(--card-hover); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #2a1206;
+  border-color: transparent;
+}
+.btn-primary:hover { background: linear-gradient(135deg, #ffc06e, #ff8194); }
+
+/* ===== حقول ===== */
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
+  font: 700 22px var(--sans);
+  padding: 14px 16px;
+  border-radius: 14px;
+  text-align: center;
+  letter-spacing: 6px;
+}
+.input:focus { outline: 2px solid var(--accent-3); border-color: transparent; }
+.input::placeholder { color: var(--text-dim); letter-spacing: normal; font-weight: 500; }
+
+.muted { color: var(--text-dim); }
+.center { text-align: center; }

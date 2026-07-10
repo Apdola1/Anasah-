@@ -1,0 +1,87 @@
+// محرّك الغرف — إنشاء/انضمام/مزامنة عبر Firestore. مشترك بين كل الألعاب.
+import {
+  doc, getDoc, setDoc, updateDoc, runTransaction, serverTimestamp,
+} from 'firebase/firestore'
+import { db } from '../firebase'
+import { getGame } from '../games/registry'
+
+// حروف واضحة (بدون O/0 و I/1 عشان ما تلخبط)
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+function genCode(len = 4) {
+  let s = ''
+  for (let i = 0; i < len; i++) {
+    s += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]
+  }
+  return s
+}
+
+const roomRef = (code) => doc(db, 'rooms', code)
+
+// إنشاء غرفة جديدة — المنشئ يجلس في المقعد 0
+export async function createRoom(gameId, uid, name) {
+  const game = getGame(gameId)
+  if (!game) throw new Error('لعبة غير معروفة')
+
+  // نحاول أكواد لين نلقى واحد فاضي
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const code = genCode()
+    const ref = roomRef(code)
+    const existing = await getDoc(ref)
+    if (existing.exists()) continue
+
+    await setDoc(ref, {
+      gameId,
+      status: 'waiting',
+      seats: [uid, null],
+      players: {
+        [uid]: { name: name || 'لاعب', seat: 0, joinedAt: Date.now() },
+      },
+      state: game.createInitialState(),
+      createdAt: serverTimestamp(),
+    })
+    return code
+  }
+  throw new Error('ما قدرنا ننشئ كود، حاول مرة ثانية')
+}
+
+// الانضمام لغرفة — نستخدم transaction عشان ما يجلس لاعبين بنفس المقعد
+export async function joinRoom(code, uid, name) {
+  const ref = roomRef(code)
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref)
+    if (!snap.exists()) throw new Error('الغرفة مو موجودة — تأكد من الكود')
+    const room = snap.data()
+
+    // موجود أصلاً؟ ما نسوي شي
+    if (room.players?.[uid]) return room.players[uid].seat
+
+    const game = getGame(room.gameId)
+    const seats = room.seats.slice()
+    const free = seats.indexOf(null)
+    if (free === -1) throw new Error('الغرفة ممتلئة 🙈')
+
+    seats[free] = uid
+    const players = { ...room.players, [uid]: { name: name || 'لاعب', seat: free, joinedAt: Date.now() } }
+    const full = seats.every((s) => s !== null)
+
+    tx.update(ref, {
+      seats,
+      players,
+      status: full ? 'playing' : 'waiting',
+    })
+    return free
+  })
+}
+
+// حفظ حركة (حالة اللعبة الجديدة)
+export async function pushState(code, nextState) {
+  await updateDoc(roomRef(code), { state: nextState })
+}
+
+// إعادة اللعبة من جديد (نفس اللاعبين)
+export async function restartGame(code, gameId) {
+  const game = getGame(gameId)
+  await updateDoc(roomRef(code), { state: game.createInitialState() })
+}
+
+export { roomRef }

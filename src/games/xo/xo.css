@@ -1,0 +1,53 @@
+.xo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.xo-banner {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.xo-banner.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.xo-banner.good {
+  border-color: var(--good);
+  color: var(--good);
+}
+
+.xo-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: min(360px, 82vw);
+  aspect-ratio: 1;
+}
+
+.xo-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(38px, 13vw, 62px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.xo-cell:not(:disabled):hover {
+  background: var(--card-hover);
+  transform: translateY(-2px);
+}
+.xo-cell:disabled { cursor: default; }
+.xo-cell.win {
+  border-color: var(--good);
+  background: rgba(74, 222, 128, 0.12);
+}
