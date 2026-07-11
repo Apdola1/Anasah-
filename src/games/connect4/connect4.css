@@ -1,0 +1,81 @@
+.c4 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+.c4-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.c4-banner.active { border-color: var(--accent); color: var(--accent); }
+.c4-banner.good { border-color: var(--good); color: var(--good); }
+
+.c4-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.25);
+}
+
+.c4-board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 12px;
+  border-radius: 20px;
+  background: linear-gradient(160deg, #3b3168, #2a2350);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  width: min(430px, 92vw);
+}
+
+.c4-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: default;
+  transition: background 0.15s ease;
+}
+.c4-col.playable { cursor: pointer; }
+.c4-col.playable:hover { background: rgba(255, 255, 255, 0.08); }
+
+.c4-hole {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 3px 6px rgba(0,0,0,0.4);
+}
+
+.c4-disc {
+  width: 82%;
+  height: 82%;
+  border-radius: 50%;
+  box-shadow: inset 0 -3px 5px rgba(0,0,0,0.3), 0 2px 3px rgba(0,0,0,0.25);
+  animation: c4-drop 0.25s ease-out;
+}
+.c4-disc.win {
+  outline: 3px solid #fff;
+  outline-offset: -3px;
+}
+
+@keyframes c4-drop {
+  from { transform: translateY(-40px); opacity: 0.4; }
+  to { transform: translateY(0); opacity: 1; }
+}
