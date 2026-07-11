@@ -55,17 +55,19 @@
 .c4-col.playable:hover { background: rgba(255, 255, 255, 0.08); }
 
 .c4-hole {
-  aspect-ratio: 1;
+  position: relative;
+  width: 100%;
+  /* حيلة المربّع عبر padding — تشتغل على كل المتصفحات بما فيها Safari الجوال،
+     بعكس aspect-ratio اللي ينهار داخل flex في Safari */
+  padding-bottom: 100%;
   border-radius: 50%;
   background: var(--bg);
-  display: grid;
-  place-items: center;
   box-shadow: inset 0 3px 6px rgba(0,0,0,0.4);
 }
 
 .c4-disc {
-  width: 82%;
-  height: 82%;
+  position: absolute;
+  inset: 9%;
   border-radius: 50%;
   box-shadow: inset 0 -3px 5px rgba(0,0,0,0.3), 0 2px 3px rgba(0,0,0,0.25);
   animation: c4-drop 0.25s ease-out;
