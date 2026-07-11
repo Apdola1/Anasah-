@@ -29,10 +29,14 @@ export async function createRoom(gameId, uid, name) {
     const existing = await getDoc(ref)
     if (existing.exists()) continue
 
+    // عدد المقاعد حسب أقصى لاعبين للعبة (يدعم الألعاب متعددة اللاعبين)
+    const seats = Array(game.maxPlayers).fill(null)
+    seats[0] = uid
+
     await setDoc(ref, {
       gameId,
       status: 'waiting',
-      seats: [uid, null],
+      seats,
       players: {
         [uid]: { name: name || 'لاعب', seat: 0, joinedAt: Date.now() },
       },

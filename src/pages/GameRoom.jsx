@@ -31,19 +31,21 @@ export default function GameRoom() {
     <div className="page">
       <Link to={`/g/${gameId}`} className="back-link">← خروج</Link>
 
-      {/* شريط اللاعبين */}
-      <div className="players-bar">
-        {Array.from({ length: game.maxPlayers }).map((_, i) => {
-          const p = playersBySeat[i]
-          const isMe = seat === i
-          return (
-            <span key={i} className="player-chip">
-              <span className={`dot${p ? '' : ' empty'}`} />
-              {p ? `${p.name}${isMe ? ' (أنت)' : ''}` : 'بانتظار لاعب…'}
-            </span>
-          )
-        })}
-      </div>
+      {/* شريط اللاعبين — بعض الألعاب ترسم قائمتها بنفسها */}
+      {!game.hidePlayersBar && (
+        <div className="players-bar">
+          {Array.from({ length: game.maxPlayers }).map((_, i) => {
+            const p = playersBySeat[i]
+            const isMe = seat === i
+            return (
+              <span key={i} className="player-chip">
+                <span className={`dot${p ? '' : ' empty'}`} />
+                {p ? `${p.name}${isMe ? ' (أنت)' : ''}` : 'بانتظار لاعب…'}
+              </span>
+            )
+          })}
+        </div>
+      )}
 
       {waiting ? (
         <WaitingRoom code={code} />
@@ -55,6 +57,7 @@ export default function GameRoom() {
             players={playersBySeat}
             onMove={onMove}
             commit={commit}
+            code={code}
           />
           {gameOver && (
             <div className="center" style={{ marginTop: 24 }}>
@@ -77,7 +80,7 @@ function WaitingRoom({ code }) {
       <p className="muted">أرسل الكود لصاحبك عشان يدخل الغرفة:</p>
       <div className="room-code">{code}</div>
       <button className="btn" onClick={copy}>انسخ رابط الدعوة 🔗</button>
-      <div className="notice">بانتظار انضمام اللاعب الثاني…</div>
+      <div className="notice">بانتظار انضمام اللاعبين…</div>
     </div>
   )
 }
