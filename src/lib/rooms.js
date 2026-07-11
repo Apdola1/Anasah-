@@ -52,10 +52,9 @@ export async function joinRoom(code, uid, name) {
     if (!snap.exists()) throw new Error('الغرفة مو موجودة — تأكد من الكود')
     const room = snap.data()
 
-    // موجود أصلاً؟ ما نسوي شي
-    if (room.players?.[uid]) return room.players[uid].seat
+    // موجود أصلاً؟ ما نسوي شي — نرجّع مقعده ولعبة الغرفة
+    if (room.players?.[uid]) return { seat: room.players[uid].seat, gameId: room.gameId }
 
-    const game = getGame(room.gameId)
     const seats = room.seats.slice()
     const free = seats.indexOf(null)
     if (free === -1) throw new Error('الغرفة ممتلئة 🙈')
@@ -69,7 +68,8 @@ export async function joinRoom(code, uid, name) {
       players,
       status: full ? 'playing' : 'waiting',
     })
-    return free
+    // نرجّع لعبة الغرفة عشان نوجّه اللاعب للّعبة الصحيحة (الكود موحّد لكل الألعاب)
+    return { seat: free, gameId: room.gameId }
   })
 }
 

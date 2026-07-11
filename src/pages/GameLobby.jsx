@@ -50,8 +50,9 @@ export default function GameLobby() {
     setBusy(true)
     try {
       const roomCode = code.trim().toUpperCase()
-      await joinRoom(roomCode, user.uid, name.trim())
-      navigate(`/g/${gameId}/${roomCode}`)
+      // نوجّه للّعبة الفعلية للغرفة، مو بالضرورة لعبة هذا اللوبي (الكود موحّد)
+      const { gameId: roomGameId } = await joinRoom(roomCode, user.uid, name.trim())
+      navigate(`/g/${roomGameId}/${roomCode}`)
     } catch (e) {
       setError(e.message)
       setBusy(false)

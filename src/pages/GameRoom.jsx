@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, Navigate } from 'react-router-dom'
 import { getGame } from '../games/registry'
 import { useRoom } from '../lib/useRoom'
 import { pushState, commitState, restartGame } from '../lib/rooms'
@@ -12,6 +12,12 @@ export default function GameRoom() {
   if (error) return <Fallback msg={error} />
   if (room === undefined) return <Fallback msg="نفتح الغرفة…" spinner />
   if (room === null) return <Fallback msg="الغرفة مو موجودة — تأكد من الكود" />
+
+  // شبكة أمان: لو اللعبة في الرابط ما تطابق لعبة الغرفة الفعلية (كود موحّد
+  // كُتب في لوبي لعبة ثانية، أو رابط مباشر خاطئ)، نوجّه للّعبة الصحيحة.
+  if (room.gameId !== gameId) {
+    return <Navigate to={`/g/${room.gameId}/${code}`} replace />
+  }
 
   const filledSeats = room.seats.filter((s) => s !== null).length
   const waiting = filledSeats < game.minPlayers
