@@ -1,6 +1,6 @@
 // هوك يشترك في غرفة ويزامنها لحظياً، وينضم اللاعب تلقائياً لو فيه مقعد فاضي
 import { useEffect, useState } from 'react'
-import { onSnapshot } from 'firebase/firestore'
+import { onSnapshot, getDocFromServer } from 'firebase/firestore'
 import { roomRef, joinRoom } from './rooms'
 import { useAuth } from './auth'
 import { getSavedName } from './auth'
@@ -20,6 +20,21 @@ export function useRoom(code) {
       (err) => setError(err.message),
     )
     return unsub
+  }, [code])
+
+  // لما يرجع اللاعب للتبويب (بعد قفل الجوال أو التنقّل لتطبيق ثاني)،
+  // نجيب آخر حالة من الخادم فوراً بدل ما ننتظر إعادة اتصال البث.
+  // يعالج مشكلة "حركة الخصم ما تظهر إلا بعد تحديث الصفحة" على الجوال.
+  useEffect(() => {
+    if (!code) return
+    function onVisible() {
+      if (document.visibilityState !== 'visible') return
+      getDocFromServer(roomRef(code))
+        .then((snap) => { if (snap.exists()) setRoom(snap.data()) })
+        .catch(() => {}) // لو أوفلاين، البث بيلحق لما يرجع الاتصال
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
   }, [code])
 
   // انضمام تلقائي لو اللاعب مو داخل الغرفة وفيه مكان

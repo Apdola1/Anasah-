@@ -1,7 +1,7 @@
 // إعداد Firebase — القيم تُقرأ من ملف .env.local
 // (شوف .env.example عشان تعرف كيف تعبّيها من إعدادات مشروعك في Firebase)
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import { initializeFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 
 const firebaseConfig = {
@@ -22,7 +22,12 @@ let auth = null
 
 if (isFirebaseConfigured) {
   const app = initializeApp(firebaseConfig)
-  db = getFirestore(app)
+  // experimentalAutoDetectLongPolling: يخلّي Firestore يكتشف لو الشبكة/المتصفح
+  // يكسر بث WebSocket ويتحوّل تلقائياً لـ long-polling — يحسّن ثبات المزامنة
+  // اللحظية على الجوال وشبكات الجوّال والبروكسيات.
+  db = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+  })
   auth = getAuth(app)
 } else {
   console.warn('⚠️ إعدادات Firebase ناقصة — عبّي ملف .env.local (شوف .env.example)')
