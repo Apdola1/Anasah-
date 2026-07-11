@@ -73,9 +73,24 @@ export async function joinRoom(code, uid, name) {
   })
 }
 
-// حفظ حركة (حالة اللعبة الجديدة)
+// حفظ حركة (حالة اللعبة الجديدة) — استبدال كامل للحالة
 export async function pushState(code, nextState) {
   await updateDoc(roomRef(code), { state: nextState })
+}
+
+// تحديث آمن للحالة عبر transaction — يقرأ آخر حالة ثم يطبّق updater عليها.
+// يمنع ضياع التحديثات لو لاعبان كتبوا بنفس اللحظة (مثل نمط السباق).
+// لو رجّع updater قيمة فارغة (null/undefined) نلغي التحديث.
+export async function commitState(code, updater) {
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(roomRef(code))
+    if (!snap.exists()) throw new Error('الغرفة غير موجودة')
+    const room = snap.data()
+    const next = updater(room.state, room)
+    if (next === null || next === undefined) return null
+    tx.update(roomRef(code), { state: next })
+    return next
+  })
 }
 
 // إعادة اللعبة من جديد (نفس اللاعبين)

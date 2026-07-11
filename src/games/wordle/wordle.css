@@ -1,0 +1,105 @@
+.wl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  --wl-tile: min(56px, 14vw);
+  --wl-correct: #4ade80;
+  --wl-present: #e0a93b;
+  --wl-absent: #2c2740;
+}
+
+.wl-banner {
+  font-family: var(--display);
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 700;
+  text-align: center;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.wl-banner.active { border-color: var(--accent); color: var(--accent); }
+.wl-banner.good { border-color: var(--good); color: var(--good); }
+
+/* اختيار النمط */
+.wl-modes { display: flex; flex-direction: column; gap: 12px; width: min(360px, 90vw); }
+.wl-mode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.wl-mode:hover { transform: translateY(-2px); background: var(--card-hover); border-color: var(--accent-3); }
+.wl-mode-emoji { font-size: 30px; }
+.wl-mode-name { font-family: var(--display); font-weight: 700; font-size: 20px; }
+.wl-mode-desc { color: var(--text-dim); font-size: 14px; }
+
+/* الشبكة */
+.wl-grid { display: flex; flex-direction: column; gap: 6px; }
+.wl-row { display: flex; gap: 6px; justify-content: center; }
+.wl-tile {
+  width: var(--wl-tile);
+  height: var(--wl-tile);
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: calc(var(--wl-tile) * 0.5);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  text-transform: none;
+}
+.wl-tile.filled { border-color: var(--text-dim); animation: wl-pop 0.1s ease; }
+.wl-tile.secret.filled { color: var(--accent); }
+.wl-tile.correct { background: var(--wl-correct); border-color: var(--wl-correct); color: #0c2c17; }
+.wl-tile.present { background: var(--wl-present); border-color: var(--wl-present); color: #2c1e05; }
+.wl-tile.absent { background: var(--wl-absent); border-color: var(--wl-absent); color: var(--text-dim); }
+
+@keyframes wl-pop { from { transform: scale(0.9); } to { transform: scale(1); } }
+
+.wl-error {
+  color: var(--accent-2);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* لوحة المفاتيح */
+.wl-keyboard { display: flex; flex-direction: column; gap: 7px; width: min(500px, 96vw); }
+.wl-krow { display: flex; gap: 5px; justify-content: center; }
+.wl-key {
+  flex: 1;
+  max-width: 40px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  font-family: var(--sans);
+  font-size: 19px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  background: #453b66;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+.wl-key:hover { background: #52477a; }
+.wl-key:active { transform: scale(0.94); }
+.wl-key.correct { background: var(--wl-correct); color: #0c2c17; }
+.wl-key.present { background: var(--wl-present); color: #2c1e05; }
+.wl-key.absent { background: var(--wl-absent); color: var(--text-dim); }
+.wl-key-wide {
+  max-width: 66px;
+  font-family: var(--display);
+  font-size: 15px;
+}
+.wl-key:disabled { opacity: 0.5; cursor: default; }

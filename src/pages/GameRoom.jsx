@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { getGame } from '../games/registry'
 import { useRoom } from '../lib/useRoom'
-import { pushState, restartGame } from '../lib/rooms'
+import { pushState, commitState, restartGame } from '../lib/rooms'
 
 export default function GameRoom() {
   const { gameId, code } = useParams()
@@ -18,6 +18,7 @@ export default function GameRoom() {
   const gameOver = room.state?.winner !== undefined && room.state?.winner !== null
 
   const onMove = (nextState) => pushState(code, nextState)
+  const commit = (updater) => commitState(code, updater)
   const onRestart = () => restartGame(code, gameId)
 
   return (
@@ -47,6 +48,7 @@ export default function GameRoom() {
             seat={seat}
             players={playersBySeat}
             onMove={onMove}
+            commit={commit}
           />
           {gameOver && (
             <div className="center" style={{ marginTop: 24 }}>
