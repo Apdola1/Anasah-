@@ -6,5 +6,12 @@
     </linearGradient>
   </defs>
   <rect width="64" height="64" rx="16" fill="url(#g)"/>
-  <text x="32" y="47" font-family="Georgia, 'Times New Roman', serif" font-size="42" font-weight="900" text-anchor="middle" fill="#2a1206">أ</text>
+  <g transform="rotate(-8 32 32)">
+    <rect x="17" y="17" width="30" height="30" rx="8" fill="#fff2e0"/>
+    <circle cx="25" cy="25" r="3.4" fill="#2a1206"/>
+    <circle cx="39" cy="25" r="3.4" fill="#2a1206"/>
+    <circle cx="32" cy="32" r="3.4" fill="#2a1206"/>
+    <circle cx="25" cy="39" r="3.4" fill="#2a1206"/>
+    <circle cx="39" cy="39" r="3.4" fill="#2a1206"/>
+  </g>
 </svg>

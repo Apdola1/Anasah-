@@ -10,16 +10,15 @@
   gap: 10px;
 }
 .brand-mark {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 38px;
   height: 38px;
-  border-radius: 12px;
-  font-family: var(--display);
-  font-weight: 900;
-  font-size: 22px;
-  color: #2a1206;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  flex-shrink: 0;
+}
+.brand-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .brand-name {
   font-family: var(--display);
