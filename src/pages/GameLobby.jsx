@@ -76,7 +76,7 @@ export default function GameLobby() {
 
         {game.SoloComponent && (
           <>
-            <button className="btn" onClick={() => navigate(`/g/${gameId}/solo`)}>
+            <button className="btn btn-primary" onClick={() => navigate(`/g/${gameId}/solo`)}>
               {game.soloLabel || 'العب منفرد'}
             </button>
             <div className="divider">أو العب مع صاحبك</div>
@@ -106,7 +106,7 @@ export default function GameLobby() {
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
         />
-        <button className="btn" disabled={!ready || busy} onClick={handleJoin}>
+        <button className="btn btn-primary" disabled={!ready || busy} onClick={handleJoin}>
           انضم للغرفة
         </button>
 
