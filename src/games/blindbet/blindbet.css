@@ -96,14 +96,15 @@
   font-family: var(--display);
   font-weight: 900;
   font-size: 24px;
-  color: #2a1206;
+  color: #f5e9ff;
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  /* نفس لون كروت الأسئلة (بنفسجي) بس أغمق شوي */
+  background: linear-gradient(150deg, #7e22ce, #4c1d95);
   cursor: pointer;
-  transition: transform 0.1s ease;
+  transition: transform 0.1s ease, filter 0.2s ease;
 }
-.bb-bet:hover { transform: translateY(-2px) scale(1.04); }
+.bb-bet:hover { transform: translateY(-2px) scale(1.04); filter: brightness(1.15); }
 .bb-bet-tag {
   font-family: var(--display);
   font-weight: 700;

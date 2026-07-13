@@ -6,7 +6,6 @@ import {
 import './blindbet.css'
 
 const LABELS = ['أ', 'ب', 'ج', 'د']
-const toAr = (n) => String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d])
 
 export default function BlindBetGame({ state, seat, players, commit }) {
   const nameOf = (s) => players[s]?.name || `لاعب ${s + 1}`
@@ -35,7 +34,7 @@ function Scoreboard({ state, seat, nameOf }) {
         </div>
       ))}
       {state.phase !== 'results' && (
-        <div className="bb-progress">كرت {toAr(cardsUsedCount(state) + 1)} / {toAr(NUM_CARDS)}</div>
+        <div className="bb-progress">كرت {cardsUsedCount(state) + 1} / {NUM_CARDS}</div>
       )}
     </div>
   )
@@ -55,7 +54,7 @@ function Pick({ state, seat, myTurn, nameOf, commit }) {
             disabled={!myTurn || state.used[i]}
             onClick={() => commit((s) => pickCard(s, seat, i))}
           >
-            {state.used[i] ? '✓' : toAr(i + 1)}
+            {state.used[i] ? '✓' : i + 1}
           </button>
         ))}
       </div>
@@ -66,7 +65,7 @@ function Pick({ state, seat, myTurn, nameOf, commit }) {
 function Bet({ state, seat, myTurn, nameOf, commit }) {
   return (
     <>
-      <div className="bb-selected">الكرت {toAr(state.selectedCard + 1)} 🃏</div>
+      <div className="bb-selected">الكرت {state.selectedCard + 1} 🃏</div>
       <div className={`bb-turn${myTurn ? ' active' : ''}`}>
         {myTurn ? 'راهن قبل ما يظهر السؤال!' : `${nameOf(state.turn)} يراهن… 🤔`}
       </div>
@@ -74,7 +73,7 @@ function Bet({ state, seat, myTurn, nameOf, commit }) {
         <div className="bb-bets">
           {Array.from({ length: MAX_BET - MIN_BET + 1 }, (_, k) => MIN_BET + k).map((n) => (
             <button key={n} className="bb-bet" onClick={() => commit((s) => placeBet(s, seat, n))}>
-              {toAr(n)}
+              {n}
             </button>
           ))}
         </div>
@@ -88,7 +87,7 @@ function Question({ state, seat, myTurn, nameOf, commit }) {
   const q = questionOfCard(state, state.selectedCard)
   return (
     <>
-      <div className="bb-bet-tag">رهانك: {toAr(state.bet)} نقاط 🎯</div>
+      <div className="bb-bet-tag">رهانك: {state.bet} نقاط 🎯</div>
       <div className="bb-question">{q.q}</div>
       <div className="bb-options">
         {q.options.map((opt, i) => (
@@ -113,8 +112,8 @@ function Reveal({ state, seat, nameOf, commit }) {
   const q = questionOfCard(state, r.card)
   const mine = r.seat === seat
   let text
-  if (r.correct) text = mine ? `صح! أخذت +${toAr(r.bet)} 🎉` : `${nameOf(r.seat)} جاوب صح +${toAr(r.bet)}`
-  else text = mine ? `خطأ! خسرت ${toAr(r.bet)} 😬` : `${nameOf(r.seat)} أخطأ −${toAr(r.bet)}`
+  if (r.correct) text = mine ? `صح! أخذت +${r.bet} 🎉` : `${nameOf(r.seat)} جاوب صح +${r.bet}`
+  else text = mine ? `خطأ! خسرت ${r.bet} 😬` : `${nameOf(r.seat)} أخطأ −${r.bet}`
 
   return (
     <>
