@@ -1,0 +1,174 @@
+.bb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-width: 440px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.bb-emoji-big { font-size: 54px; }
+
+/* لوحة النقاط */
+.bb-scoreboard {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.bb-score {
+  flex: 1;
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.bb-score.turn { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.bb-score.me .bb-score-name { color: var(--accent-3); }
+.bb-score-name { font-size: 14px; font-weight: 500; }
+.bb-score-val { font-family: var(--display); font-weight: 900; font-size: 26px; }
+.bb-progress { width: 100%; color: var(--text-dim); font-size: 14px; }
+
+.bb-turn {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text-dim);
+}
+.bb-turn.active { color: var(--accent); }
+.bb-hint { color: var(--text-dim); font-size: 14px; }
+
+/* الكروت */
+.bb-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+.bb-card {
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 24px;
+  color: #f5e9ff;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(150deg, #a855f7, #6d28d9);
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.2s ease;
+  box-shadow: var(--shadow);
+}
+.bb-card:not(:disabled):hover { transform: translateY(-3px); filter: brightness(1.12); }
+.bb-card.used {
+  background: var(--bg-soft);
+  color: var(--text-dim);
+  box-shadow: none;
+  cursor: default;
+}
+.bb-card:disabled { cursor: default; }
+
+.bb-selected {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 22px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--accent-3);
+  color: var(--accent-3);
+}
+
+/* الرهان */
+.bb-bets { display: flex; gap: 10px; }
+.bb-bet {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 24px;
+  color: #2a1206;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.bb-bet:hover { transform: translateY(-2px) scale(1.04); }
+.bb-bet-tag {
+  font-family: var(--display);
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+/* السؤال والخيارات (نفس نمط سابقن) */
+.bb-question { font-family: var(--display); font-weight: 700; font-size: clamp(19px, 5vw, 24px); line-height: 1.35; }
+.bb-options { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.bb-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: start;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease, border-color 0.2s ease;
+}
+button.bb-option:not(:disabled):hover { background: var(--card-hover); border-color: var(--accent-3); transform: translateY(-1px); }
+.bb-option:disabled { cursor: default; }
+.bb-option.reveal { cursor: default; }
+.bb-option.right { border-color: var(--good); background: rgba(74, 222, 128, 0.14); color: var(--good); }
+.bb-option.wrong { border-color: var(--accent-2); background: rgba(239, 68, 68, 0.12); color: var(--accent-2); }
+.bb-label {
+  display: grid;
+  place-items: center;
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--bg-soft);
+  font-family: var(--display);
+  font-size: 16px;
+}
+.bb-mark { margin-inline-start: auto; font-size: 20px; }
+
+.bb-result {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 24px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+.bb-result.good { color: var(--good); border-color: var(--good); }
+.bb-result.bad { color: var(--accent-2); border-color: var(--accent-2); }
+
+/* النتائج النهائية */
+.bb-final { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.bb-final-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-weight: 700;
+}
+.bb-final-row.win { border-color: var(--accent); background: rgba(255, 180, 84, 0.10); }
+.bb-final-score { font-family: var(--display); font-weight: 900; font-size: 20px; color: var(--accent); }

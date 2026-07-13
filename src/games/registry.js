@@ -5,8 +5,9 @@ import connect4 from './connect4'
 import wordle from './wordle'
 import impostor from './impostor'
 import trivia from './trivia'
+import blindbet from './blindbet'
 
-export const games = [xo, connect4, wordle, impostor, trivia]
+export const games = [xo, connect4, wordle, impostor, trivia, blindbet]
 
 // ألعاب قادمة (للعرض في المعرض فقط، تُبنى لاحقاً)
 export const comingSoon = [
