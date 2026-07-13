@@ -30,7 +30,7 @@ export default function App() {
           </span>
           <span className="brand-name">أناسة</span>
         </Link>
-        <span className="brand-tag muted">ونس وألعاب</span>
+        <span className="brand-tag muted">ألعاب لجلستكم المملة</span>
       </header>
 
       <main>

@@ -4,9 +4,9 @@ import { createInitialState } from './logic'
 
 export default {
   id: 'trivia',
-  name: 'لعبة الأسئلة',
+  name: 'سابقن!',
   emoji: '🧠',
-  tagline: 'كويز عربي جماعي — جاوب أسرع واجمع نقاط',
+  tagline: 'سباق اسئلة، جاوب صح أسرع من غيرك!',
   color: 'linear-gradient(135deg, #22d3ee, #6366f1)',
   minPlayers: 1,      // تدير لوبيها بنفسها (تبدأ فعلياً بلاعبَين+)
   maxPlayers: 8,
