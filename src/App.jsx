@@ -2,6 +2,7 @@ import { Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home'
 import GameLobby from './pages/GameLobby'
 import GameRoom from './pages/GameRoom'
+import SoloPage from './pages/SoloPage'
 import './App.css'
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/g/:gameId" element={<GameLobby />} />
+          <Route path="/g/:gameId/solo" element={<SoloPage />} />
           <Route path="/g/:gameId/:code" element={<GameRoom />} />
           <Route path="*" element={<Home />} />
         </Routes>

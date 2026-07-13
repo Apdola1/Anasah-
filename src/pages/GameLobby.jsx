@@ -74,6 +74,15 @@ export default function GameLobby() {
           </div>
         )}
 
+        {game.SoloComponent && (
+          <>
+            <button className="btn" onClick={() => navigate(`/g/${gameId}/solo`)}>
+              {game.soloLabel || 'العب منفرد'}
+            </button>
+            <div className="divider">أو العب مع صاحبك</div>
+          </>
+        )}
+
         <input
           className="input"
           style={{ letterSpacing: 'normal', textAlign: 'start' }}
