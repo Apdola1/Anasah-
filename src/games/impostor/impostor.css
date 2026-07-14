@@ -37,6 +37,126 @@
 
 .imp-note { color: var(--text-dim); font-size: 15px; }
 
+/* إعدادات المضيف في اللوبي */
+.imp-settings {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+.imp-setting { display: flex; flex-direction: column; gap: 10px; }
+
+/* زر التبديل (سويتش) */
+.imp-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.imp-switch.on { border-color: var(--accent); background: var(--accent-bg, rgba(255,180,84,0.12)); }
+.imp-switch-knob {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+.imp-switch-knob::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.2s ease;
+}
+.imp-switch.on .imp-switch-knob { background: var(--accent); }
+.imp-switch.on .imp-switch-knob::after { inset-inline-start: 21px; }
+
+/* خيارات مدة المؤقّت */
+.imp-timer-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.imp-pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.imp-pill.chosen { border-color: var(--accent); background: var(--accent-bg, rgba(255,180,84,0.12)); color: var(--accent); }
+.imp-manual { display: flex; align-items: center; gap: 8px; color: var(--text-dim); font-size: 14px; }
+.imp-manual input {
+  width: 64px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+  text-align: center;
+}
+
+/* مشهد «مين يبدأ؟» */
+.imp-wheel {
+  width: 100%;
+  padding: 24px 20px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-3);
+  background: rgba(139, 123, 255, 0.10);
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 30px;
+  color: var(--accent-3);
+  transition: transform 0.15s ease;
+}
+.imp-wheel.landed {
+  border-color: var(--accent);
+  background: var(--accent-bg, rgba(255,180,84,0.14));
+  color: var(--accent);
+  transform: scale(1.04);
+}
+.imp-starter-note { font-size: 18px; }
+.imp-chip.active { border-color: var(--accent); background: var(--accent-bg, rgba(255,180,84,0.14)); color: var(--accent); }
+
+/* مؤقّت النقاش */
+.imp-timer {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 30px;
+  letter-spacing: 1px;
+  padding: 8px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+.imp-timer.over { border-color: var(--accent-2); color: var(--accent-2); }
+
 /* بطاقة الدور */
 .imp-role {
   width: 100%;

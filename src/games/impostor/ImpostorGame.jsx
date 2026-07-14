@@ -1,7 +1,8 @@
 // واجهة لعبة الإمبوستر — متعددة اللاعبين (٣+)
+import { useEffect, useRef, useState } from 'react'
 import {
-  MIN_TO_START, activeSeats, startGame, startVoting, castVote, resetGame,
-  topVoted, whoVotedFor,
+  MIN_TO_START, TIMER_PRESETS, activeSeats, startGame, startVoting, castVote,
+  proceedToReveal, resetGame, updateSettings, topVoted, whoVotedFor,
 } from './logic'
 import './impostor.css'
 
@@ -13,6 +14,7 @@ export default function ImpostorGame({ state, seat, players, commit, code }) {
   const ctx = { state, seat, seats, nameOf, isHost, commit, code }
 
   switch (state.phase) {
+    case 'picking': return <Picking {...ctx} />
     case 'reveal': return <Reveal {...ctx} />
     case 'voting': return <Voting {...ctx} />
     case 'results': return <Results {...ctx} />
@@ -20,9 +22,13 @@ export default function ImpostorGame({ state, seat, players, commit, code }) {
   }
 }
 
-function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
+function Lobby({ state, seat, seats, nameOf, isHost, commit, code }) {
   const enough = seats.length >= MIN_TO_START
+  const settings = state.settings || {}
   const start = () => commit((s, room) => startGame(s, activeSeats(room)))
+  const setS = (patch) => commit((s) => updateSettings(s, patch))
+  const isManual = settings.timerEnabled && !TIMER_PRESETS.includes(settings.timerSeconds)
+
   return (
     <div className="imp">
       <div className="imp-emoji-big">🥷</div>
@@ -33,11 +39,140 @@ function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
       </div>
       <PlayerChips seats={seats} nameOf={nameOf} seat={seat} />
       <div className="imp-note">{seats.length} لاعبين — نحتاج {MIN_TO_START} على الأقل</div>
+
+      {isHost && (
+        <div className="imp-settings">
+          {/* المؤقّت */}
+          <div className="imp-setting">
+            <button
+              className={`imp-switch${settings.timerEnabled ? ' on' : ''}`}
+              onClick={() => setS({ timerEnabled: !settings.timerEnabled })}
+            >
+              <span className="imp-switch-label">نحتاج مؤقت؟</span>
+              <span className="imp-switch-knob" />
+            </button>
+            {settings.timerEnabled && (
+              <div className="imp-timer-opts">
+                {TIMER_PRESETS.map((sec) => (
+                  <button
+                    key={sec}
+                    className={`imp-pill${settings.timerSeconds === sec ? ' chosen' : ''}`}
+                    onClick={() => setS({ timerSeconds: sec })}
+                  >
+                    {sec === 60 ? 'دقيقة' : `${sec / 60} دقائق`}
+                  </button>
+                ))}
+                <button
+                  className={`imp-pill${isManual ? ' chosen' : ''}`}
+                  onClick={() => setS({ timerSeconds: isManual ? settings.timerSeconds : 120 })}
+                >
+                  تحديد يدوي
+                </button>
+                {isManual && (
+                  <div className="imp-manual">
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={Math.round(settings.timerSeconds / 60)}
+                      onChange={(e) => {
+                        const m = Math.max(1, Math.min(60, Number(e.target.value) || 1))
+                        setS({ timerSeconds: m * 60 })
+                      }}
+                    />
+                    <span>دقيقة</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* اختيار من يبدأ */}
+          <div className="imp-setting">
+            <button
+              className={`imp-switch${settings.pickStarter ? ' on' : ''}`}
+              onClick={() => setS({ pickStarter: !settings.pickStarter })}
+            >
+              <span className="imp-switch-label">نختار مين يبدأ؟</span>
+              <span className="imp-switch-knob" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {isHost ? (
         <button className="btn btn-primary" disabled={!enough} onClick={start}>ابدأ اللعبة</button>
       ) : (
         <div className="notice">بانتظار بدء المضيف… ⏳</div>
       )}
+    </div>
+  )
+}
+
+// مشهد «مين يبدأ؟» — عجلة دوران تقف على اللاعب الذي اختِير عشوائياً
+function Picking({ state, seats, nameOf, isHost, commit }) {
+  const order = seats
+  const landIdx = Math.max(0, order.indexOf(state.starterSeat))
+  const [idx, setIdx] = useState(0)
+  const [done, setDone] = useState(false)
+  const timer = useRef(null)
+
+  useEffect(() => {
+    // عدد الخطوات: عدة لفّات كاملة ثم التوقف على الفائز
+    const loops = 3
+    const totalSteps = loops * order.length + landIdx
+    let step = 0
+    const tick = () => {
+      setIdx(step % order.length)
+      if (step >= totalSteps) { setDone(true); return }
+      const remaining = totalSteps - step
+      // يتسارع ثم يتباطأ في آخر لفّة (تشويق)
+      const delay = remaining <= 12 ? 90 + (12 - remaining) * 32 : 70
+      step++
+      timer.current = setTimeout(tick, delay)
+    }
+    tick()
+    return () => clearTimeout(timer.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const next = () => commit((s) => proceedToReveal(s))
+
+  return (
+    <div className="imp">
+      <h2 className="imp-title">مين يبدأ؟ 🎯</h2>
+      <div className={`imp-wheel${done ? ' landed' : ''}`}>
+        {done ? '🎯' : '🎰'} {nameOf(order[idx])}
+      </div>
+      {done ? (
+        <div className="imp-starter-note">يبدأ الجولة: <b>{nameOf(state.starterSeat)}</b></div>
+      ) : (
+        <div className="imp-note">جاري الاختيار عشوائياً…</div>
+      )}
+      <PlayerChips seats={seats} nameOf={nameOf} seat={null} active={done ? state.starterSeat : order[idx]} />
+      {isHost ? (
+        <button className="btn btn-primary" disabled={!done} onClick={next}>اعرض الكلمات 👁️</button>
+      ) : (
+        <div className="notice">بانتظار المضيف… ⏳</div>
+      )}
+    </div>
+  )
+}
+
+// عدّاد تنازلي لمؤقّت النقاش
+function CountdownTimer({ endsAt }) {
+  const [now, setNow] = useState(Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 500)
+    return () => clearInterval(id)
+  }, [])
+  const remaining = Math.max(0, Math.ceil((endsAt - now) / 1000))
+  const mm = String(Math.floor(remaining / 60)).padStart(2, '0')
+  const ss = String(remaining % 60).padStart(2, '0')
+  const over = remaining === 0
+  return (
+    <div className={`imp-timer${over ? ' over' : ''}`}>
+      {over ? '⏰ انتهى الوقت!' : `⏱️ ${mm}:${ss}`}
     </div>
   )
 }
@@ -49,6 +184,8 @@ function Reveal({ state, seat, seats, nameOf, isHost, commit }) {
 
   return (
     <div className="imp">
+      {state.timerEndsAt && <CountdownTimer endsAt={state.timerEndsAt} />}
+
       {isSpectator ? (
         <div className="imp-role"><div className="imp-role-emoji">👀</div><div className="imp-role-title">أنت متفرّج</div></div>
       ) : amImpostor ? (
@@ -64,6 +201,10 @@ function Reveal({ state, seat, seats, nameOf, isHost, commit }) {
           <div className="imp-word">{state.topic.word}</div>
           <div className="imp-role-note">اوصفه بذكاء… لا تفضح الكلمة مباشرة!</div>
         </div>
+      )}
+
+      {state.starterSeat !== null && state.starterSeat !== undefined && (
+        <div className="imp-note">يبدأ: <b>{nameOf(state.starterSeat)}</b></div>
       )}
 
       <PlayerChips seats={seats} nameOf={nameOf} seat={seat} />
@@ -110,12 +251,12 @@ function Results({ state, seat, seats, nameOf, isHost, commit }) {
   const top = topVoted(state.votes)
   const caught = top.length === 1 && top[0] === state.impostorSeat
   const voters = whoVotedFor(state.votes, state.impostorSeat)
-  const reset = () => commit(() => resetGame())
+  const reset = () => commit((s) => resetGame(s))
 
   return (
     <div className="imp">
       <div className={`imp-verdict ${caught ? 'good' : 'bad'}`}>
-        {caught ? 'انقبض الإمبوستر! 🎉' : 'الإمبوستر فلت! 🥷💨'}
+        {caught ? 'صدت الإمبوستر يا فنان! 🎯' : 'الإمبوستر فلت! 🥷💨'}
       </div>
 
       <div className="imp-role impostor">
@@ -149,11 +290,11 @@ function Results({ state, seat, seats, nameOf, isHost, commit }) {
   )
 }
 
-function PlayerChips({ seats, nameOf, seat }) {
+function PlayerChips({ seats, nameOf, seat, active }) {
   return (
     <div className="imp-players">
       {seats.map((s) => (
-        <span key={s} className="imp-chip">
+        <span key={s} className={`imp-chip${active === s ? ' active' : ''}`}>
           {nameOf(s)}{s === seat ? ' (أنت)' : ''}
         </span>
       ))}
