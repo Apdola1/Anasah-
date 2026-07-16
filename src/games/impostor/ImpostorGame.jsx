@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   MIN_TO_START, TIMER_PRESETS, activeSeats, startGame, startVoting, castVote,
-  proceedToReveal, resetGame, updateSettings, topVoted, whoVotedFor,
+  proceedToReveal, resetGame, updateSettings, whoVotedFor,
 } from './logic'
 import './impostor.css'
 
@@ -248,15 +248,16 @@ function Voting({ state, seat, seats, nameOf, isHost, commit }) {
 }
 
 function Results({ state, seat, seats, nameOf, isHost, commit }) {
-  const top = topVoted(state.votes)
-  const caught = top.length === 1 && top[0] === state.impostorSeat
   const voters = whoVotedFor(state.votes, state.impostorSeat)
+  // نتيجة فردية: من صوّت على الإمبوستر «صدّه»، ومن لم يصوّت عليه «فلت منه».
+  const myVote = seat !== null ? state.votes[seat] : undefined
+  const iCaught = myVote !== undefined && myVote === state.impostorSeat
   const reset = () => commit((s) => resetGame(s))
 
   return (
     <div className="imp">
-      <div className={`imp-verdict ${caught ? 'good' : 'bad'}`}>
-        {caught ? 'صدت الإمبوستر يا فنان! 🎯' : 'الإمبوستر فلت! 🥷💨'}
+      <div className={`imp-verdict ${iCaught ? 'good' : 'bad'}`}>
+        {iCaught ? 'صدت الإمبوستر يا فنان! 🎯' : 'الإمبوستر فلت! 🥷💨'}
       </div>
 
       <div className="imp-role impostor">

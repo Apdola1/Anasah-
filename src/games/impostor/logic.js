@@ -25,6 +25,7 @@ export function createInitialState() {
     impostorSeat: null,   // مقعد الإمبوستر
     topic: null,          // { word, hint }
     votes: {},            // { [مقعد المصوِّت]: مقعد المُصوَّت عليه }
+    lastImpostorSeat: null, // إمبوستر الجولة السابقة (لمنع التكرار المتتالي)
     starterSeat: null,    // مقعد اللاعب الذي يبدأ (لو فُعّل الخيار)
     timerEndsAt: null,    // طابع زمني (ms) لنهاية مؤقّت النقاش
     settings: {
@@ -59,7 +60,11 @@ function enterReveal(state) {
 export function startGame(state, seats) {
   if (state.phase !== 'lobby') return null
   if (seats.length < MIN_TO_START) return null
-  const impostorSeat = seats[randInt(seats.length)]
+  // نستبعد إمبوستر الجولة السابقة حتى لا يتكرر نفس الشخص مرّتين متتاليتين،
+  // والباقون بفرص متساوية تماماً (سحبة عشوائية منتظمة).
+  const pool = seats.filter((s) => s !== state.lastImpostorSeat)
+  const from = pool.length > 0 ? pool : seats
+  const impostorSeat = from[randInt(from.length)]
   const base = {
     ...state,
     impostorSeat,
@@ -97,9 +102,14 @@ export function castVote(state, voterSeat, votedSeat, seats) {
 }
 
 // إعادة اللعبة (نفس اللاعبين) مع الحفاظ على إعدادات المضيف
+// ونتذكّر إمبوستر الجولة المنتهية لمنع تكراره في الجولة التالية.
 export function resetGame(state) {
   const init = createInitialState()
-  return { ...init, settings: state?.settings || init.settings }
+  return {
+    ...init,
+    settings: state?.settings || init.settings,
+    lastImpostorSeat: state?.impostorSeat ?? state?.lastImpostorSeat ?? null,
+  }
 }
 
 // عدّ الأصوات: { مقعد: عدد }
