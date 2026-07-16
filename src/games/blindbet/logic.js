@@ -11,7 +11,7 @@ export function createInitialState() {
   return {
     phase: 'pick',
     turn: 0,
-    cards: pickQuestions(NUM_CARDS), // فهارس ١٠ أسئلة من البنك
+    cards: pickQuestions(NUM_CARDS, 'blindbet'), // فهارس ١٠ أسئلة من البنك (بلا تكرار حتى نهاية البنك)
     used: Array(NUM_CARDS).fill(false),
     scores: { 0: 0, 1: 0 },
     selectedCard: null, // الكرت المختار في الدور الحالي

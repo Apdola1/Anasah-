@@ -36,7 +36,7 @@ export function startGame(state, seats) {
   seats.forEach((s) => { scores[s] = 0 })
   return {
     phase: 'question',
-    qIndices: pickQuestions(QUESTIONS_PER_GAME),
+    qIndices: pickQuestions(QUESTIONS_PER_GAME, 'trivia'),
     current: 0,
     answers: {},
     scores,
