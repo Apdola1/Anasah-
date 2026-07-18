@@ -29,9 +29,7 @@ export default function App() {
               </g>
             </svg>
           </span>
-          <span className="brand-name">أناسة</span>
         </Link>
-        <span className="brand-tag muted">ألعاب لجلستكم المملة</span>
       </header>
 
       <main>

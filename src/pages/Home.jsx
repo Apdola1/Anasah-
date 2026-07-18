@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div>
       <section className="hero">
-        <h1>العب مع أصحابك 🎲</h1>
+        <h1>أنَـــاســـة</h1>
         <p>اختر لعبة، سوّ غرفة، و ارسل الكود</p>
       </section>
 

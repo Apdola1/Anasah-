@@ -25,6 +25,12 @@
 }
 @font-face {
   font-family: 'Thmanyah Display';
+  src: url('/fonts/thmanyah/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Thmanyah Display';
   src: url('/fonts/thmanyah/thmanyahserifdisplay/woff2/thmanyahserifdisplay-Bold.woff2') format('woff2');
   font-weight: 700;
   font-display: swap;
