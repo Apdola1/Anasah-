@@ -59,7 +59,7 @@ export default function GameRoom() {
             commit={commit}
             code={code}
           />
-          {gameOver && (
+          {gameOver && !game.ownRestart && (
             <div className="center" style={{ marginTop: 24 }}>
               <button className="btn btn-primary" onClick={onRestart}>لعبة جديدة 🔁</button>
             </div>

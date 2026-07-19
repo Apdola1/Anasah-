@@ -11,6 +11,7 @@ export default {
   minPlayers: 2,
   maxPlayers: 2,
   hidePlayersBar: true, // ترسم لوحة نقاطها بنفسها
+  ownRestart: true,     // ترسم زر «لعبة جديدة» بنفسها (تجنّب تكرار زر المنصة)
   createInitialState,
   Component: BlindBetGame,
 }

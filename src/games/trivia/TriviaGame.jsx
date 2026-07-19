@@ -28,7 +28,7 @@ function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
     <div className="tv">
       <div className="tv-emoji-big">🧠</div>
       <h2 className="tv-title">سابقن!</h2>
-      <div className="tv-share">شارك الكود مع صحبك:<div className="room-code">{code}</div></div>
+      <div className="tv-share">شارك الكود مع صاحبك:<div className="room-code">{code}</div></div>
       <PlayerChips seats={seats} nameOf={nameOf} seat={seat} />
       <div className="tv-note">{seats.length} لاعبين · {QUESTIONS_PER_GAME} أسئلة</div>
       {isHost ? (

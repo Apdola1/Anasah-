@@ -29,7 +29,7 @@ function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
     <div className="geo">
       <div className="geo-emoji-big">🌍</div>
       <h2 className="geo-title">حصان طروادة</h2>
-      <div className="geo-share">شارك الكود مع صحبك:<div className="room-code">{code}</div></div>
+      <div className="geo-share">شارك الكود مع صاحبك:<div className="room-code">{code}</div></div>
       <Chips seats={seats} nameOf={nameOf} seat={seat} />
       <div className="geo-note">{seats.length} لاعبين — نحتاج {MIN_TO_START} على الأقل</div>
       {isHost ? (

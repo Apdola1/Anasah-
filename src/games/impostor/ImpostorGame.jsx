@@ -34,7 +34,7 @@ function Lobby({ state, seat, seats, nameOf, isHost, commit, code }) {
       <div className="imp-emoji-big">🥷</div>
       <h2 className="imp-title">الإمبوستر</h2>
       <div className="imp-share">
-        شارك الكود مع صحبك:
+        شارك الكود مع صاحبك:
         <div className="room-code">{code}</div>
       </div>
       <PlayerChips seats={seats} nameOf={nameOf} seat={seat} />

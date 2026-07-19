@@ -11,6 +11,7 @@ export default {
   minPlayers: 1,      // تدير لوبيها بنفسها (تبدأ فعلياً بلاعبَين+)
   maxPlayers: 8,
   hidePlayersBar: true,
+  ownRestart: true,   // ترسم زر «لعبة جديدة» بنفسها (تجنّب تكرار زر المنصة)
   createInitialState,
   Component: GeoGame,
 }
