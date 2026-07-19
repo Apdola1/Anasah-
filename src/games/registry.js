@@ -6,13 +6,12 @@ import wordle from './wordle'
 import impostor from './impostor'
 import trivia from './trivia'
 import blindbet from './blindbet'
+import geo from './geo'
 
-export const games = [xo, connect4, wordle, impostor, trivia, blindbet]
+export const games = [xo, connect4, wordle, impostor, trivia, blindbet, geo]
 
 // ألعاب قادمة (للعرض في المعرض فقط، تُبنى لاحقاً)
-export const comingSoon = [
-  { id: 'cards', name: 'لعبة ورق', emoji: '🎴', color: 'linear-gradient(135deg, #ff6b81, #ff9a3d)' },
-]
+export const comingSoon = []
 
 export function getGame(id) {
   return games.find((g) => g.id === id) || null

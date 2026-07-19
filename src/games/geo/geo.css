@@ -1,0 +1,147 @@
+.geo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+.geo-emoji-big { font-size: 54px; }
+.geo-title { font-size: 26px; }
+.geo-share { color: var(--text-dim); font-size: 15px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.geo-note { color: var(--text-dim); font-size: 15px; }
+
+.geo-players { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.geo-chip { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); font-weight: 500; font-size: 15px; }
+.geo-chip.active { border-color: var(--accent); background: var(--accent-bg, rgba(255,180,84,0.14)); color: var(--accent); }
+
+/* الخريطة */
+.geo-map-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  --geo-sea: #16203a;
+  --geo-land: #2b3b57;
+  --geo-land-edge: #3a4d70;
+  --geo-pin: #7d8bb0;
+}
+.geo-map { display: block; width: 100%; height: auto; cursor: grab; touch-action: none; }
+.geo-map.grabbing { cursor: grabbing; }
+.geo-dot.pick { cursor: pointer; }
+.geo-dot.off { cursor: default; }
+
+/* أزرار التكبير */
+.geo-map-ctrl {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-end: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.geo-map-ctrl button {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: rgba(20, 16, 31, 0.82);
+  color: var(--text);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.geo-map-ctrl button:hover { background: var(--card-hover); border-color: var(--accent); }
+
+.geo-hl { color: var(--accent); }
+
+/* شريط تأكيد التخمين */
+.geo-confirm {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--accent);
+  background: var(--accent-bg, rgba(255,180,84,0.12));
+  font-size: 17px;
+  font-weight: 700;
+}
+.geo-confirm-btns { display: flex; gap: 8px; }
+.geo-secret-label {
+  font-size: 15px;
+  color: var(--text-dim);
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+
+/* مُنتقي البحث */
+.geo-picker {
+  width: 100%;
+  max-width: 340px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+  font-family: var(--sans);
+  text-align: center;
+}
+.geo-progress { color: var(--text-dim); font-size: 14px; }
+
+/* الأدوار */
+.geo-turn {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-weight: 700;
+  font-size: 17px;
+}
+.geo-turn.mine { border-color: var(--accent); background: var(--accent-bg, rgba(255,180,84,0.12)); color: var(--accent); }
+
+/* قائمة التخمينات */
+.geo-guesses { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.geo-guesses-title { font-weight: 700; text-align: start; }
+.geo-guess-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.geo-guess-row.hit { border-color: var(--good); background: rgba(74, 222, 128, 0.12); }
+.geo-guess-name { flex: 1; text-align: start; font-size: 16px; }
+.geo-guess-km { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.geo-guess-arrow { display: inline-block; color: var(--accent); }
+.geo-guess-heat { font-size: 18px; }
+.geo-guess-hit { color: var(--good); font-weight: 700; }
+
+/* النتيجة */
+.geo-verdict {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 24px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+.geo-verdict.good { color: var(--good); border-color: var(--good); }
+.geo-verdict.bad { color: var(--accent-2); border-color: var(--accent-2); }
+.geo-reveal { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--border); background: var(--bg-soft); }
+.geo-reveal-title { font-weight: 700; margin-bottom: 8px; }
+.geo-reveal-row { padding: 3px 0; font-size: 16px; }
