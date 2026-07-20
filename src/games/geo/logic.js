@@ -1,9 +1,10 @@
 // منطق لعبة الجغرافيا — دوال صافية
-// المراحل: 'lobby' → 'secret' (كل لاعب يخفي دولة) → 'playing' (أدوار تخمين) → 'over'
+// المراحل: 'lobby' → 'countdown' (٣٢١) → 'secret' (كل لاعب يخفي دولة) → 'playing' → 'over'
 // الفوز: «أول صيد» — أول لاعب يكشف دولة أي خصم يفوز. التغذية الراجعة لأقرب خصم.
 import { countryOf } from './countries'
 
 export const MIN_TO_START = 2
+export const COUNTDOWN_MS = 3000
 
 // ثوابت الاتجاهات (8 جهات) — الاتجاه من التخمين نحو الهدف
 const DIRS = [
@@ -63,6 +64,7 @@ export function createInitialState() {
     turn: null,       // مقعد صاحب الدور الحالي
     guesses: {},      // { [مقعد]: [{ iso, km, dir, heat, hit }] }
     winner: null,     // مقعد الفائز
+    countAt: null,    // طابع زمني لبداية العد التنازلي
   }
 }
 
@@ -72,11 +74,17 @@ export function activeSeats(room) {
     .filter((i) => i !== null)
 }
 
-// بدء اللعبة → مرحلة اختيار الدولة السرية
+// بدء اللعبة → عدّ تنازلي (٣٢١) يشوفه الجميع
 export function startGame(state, seats) {
   if (state.phase !== 'lobby') return null
   if (seats.length < MIN_TO_START) return null
-  return { ...createInitialState(), phase: 'secret' }
+  return { ...createInitialState(), phase: 'countdown', countAt: Date.now() }
+}
+
+// انتهى العدّ → مرحلة اختيار الدولة السرية
+export function startSecret(state) {
+  if (state.phase !== 'countdown') return null
+  return { ...state, phase: 'secret' }
 }
 
 // لاعب يختار (أو يغيّر) دولته السرية أثناء مرحلة السرّ

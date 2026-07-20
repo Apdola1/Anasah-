@@ -20,16 +20,31 @@
 .geo-map-wrap {
   position: relative;
   width: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid var(--border);
   --geo-sea: #16203a;
   --geo-land: #2b3b57;
   --geo-land-edge: #3a4d70;
   --geo-pin: #7d8bb0;
 }
-.geo-map { display: block; width: 100%; height: auto; cursor: grab; touch-action: none; }
-.geo-map.grabbing { cursor: grabbing; }
+.geo-map-viewport {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--geo-sea);
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.geo-map-viewport:active { cursor: grabbing; }
+.geo-map {
+  display: block;
+  width: 100%;
+  height: auto;            /* الارتفاع من نسبة viewBox (720:360) — يمنح الصندوق حجمه */
+  transform-origin: 0 0;
+  will-change: transform;
+  backface-visibility: hidden;
+}
 .geo-dot.pick { cursor: pointer; }
 .geo-dot.off { cursor: default; }
 
@@ -59,6 +74,22 @@
 .geo-map-ctrl button:hover { background: var(--card-hover); border-color: var(--accent); }
 
 .geo-hl { color: var(--accent); }
+
+/* العدّ التنازلي ٣ ٢ ١ */
+.geo-count-label { font-size: 18px; color: var(--text-dim); margin-top: 24px; }
+.geo-count {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(90px, 26vw, 160px);
+  line-height: 1;
+  color: var(--accent);
+  animation: geo-pop 0.5s ease;
+}
+@keyframes geo-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  40% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
 
 /* شريط تأكيد التخمين */
 .geo-confirm {

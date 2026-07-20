@@ -1,8 +1,8 @@
 // واجهة لعبة الجغرافيا — متعددة اللاعبين (٢+)
 // المراحل: lobby → secret (اختيار سري) → playing (أدوار تخمين) → over
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
-  MIN_TO_START, activeSeats, startGame, chooseSecret, makeGuess, resetGame,
+  MIN_TO_START, COUNTDOWN_MS, activeSeats, startGame, startSecret, chooseSecret, makeGuess, resetGame,
 } from './logic'
 import { countryOf } from './countries'
 import WorldMap from './WorldMap'
@@ -15,11 +15,40 @@ export default function GeoGame({ state, seat, players, commit, code }) {
   const ctx = { state, seat, seats, nameOf, isHost, commit, code }
 
   switch (state.phase) {
+    case 'countdown': return <Countdown {...ctx} />
     case 'secret': return <SecretPhase {...ctx} />
     case 'playing': return <Playing {...ctx} />
     case 'over': return <GameOver {...ctx} />
     default: return <Lobby {...ctx} />
   }
+}
+
+// عدّ تنازلي ٣ ٢ ١ يظهر للجميع (مزامَن عبر countAt) — المضيف ينقل للمرحلة التالية
+function Countdown({ state, isHost, commit }) {
+  const start = state.countAt || Date.now()
+  const [left, setLeft] = useState(Math.ceil((COUNTDOWN_MS - (Date.now() - start)) / 1000))
+
+  useEffect(() => {
+    const tick = () => setLeft(Math.max(0, Math.ceil((COUNTDOWN_MS - (Date.now() - start)) / 1000)))
+    tick()
+    const id = setInterval(tick, 100)
+    return () => clearInterval(id)
+  }, [start])
+
+  useEffect(() => {
+    if (!isHost) return
+    const delay = Math.max(0, COUNTDOWN_MS - (Date.now() - start)) + 200
+    const t = setTimeout(() => commit((s) => startSecret(s)), delay)
+    return () => clearTimeout(t)
+  }, [isHost, start, commit])
+
+  return (
+    <div className="geo">
+      <div className="geo-count-label">تستعدّون…</div>
+      <div className="geo-count" key={left}>{left > 0 ? left : 'ابدأوا!'}</div>
+      <div className="geo-note">اللعبة بدأت 🎬</div>
+    </div>
+  )
 }
 
 function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
