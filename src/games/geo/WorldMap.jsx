@@ -1,5 +1,5 @@
-// خريطة العالم — تحريك/تكبير عبر CSS transform (مسرّع بالGPU) بمستمعات pointer أصلية لأقصى سلاسة.
-// الخريطة تُرسم مرة واحدة، والتفاعل يغيّر transform مباشرةً بدون إعادة رسم React.
+// خريطة العالم — تحريك/تكبير عبر viewBox (متجهي، يبقى حاداً في أي تكبير).
+// الخريطة تُرسم مرة واحدة (path ثابت)، والتفاعل يغيّر viewBox مباشرةً بلا إعادة رسم React.
 import { useMemo, useRef, useEffect } from 'react'
 import { geoEquirectangular, geoPath } from 'd3-geo'
 import { feature } from 'topojson-client'
@@ -20,7 +20,7 @@ const POINTS = COUNTRIES.map((c) => {
 
 const HEAT_COLOR = { hit: '#4ade80', hot: '#ff6b81', warm: '#ffb454', cool: '#6aa9ff', cold: '#8b7bff' }
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
-const MAX_K = 8
+const MAX_K = 8 // أقصى تكبير (viewBox أصغر ما يكون = W/MAX_K)
 
 export default function WorldMap({
   guesses = [], onPick, selectable = true, revealIso = null,
@@ -28,51 +28,46 @@ export default function WorldMap({
 }) {
   const wrapRef = useRef(null)
   const svgRef = useRef(null)
-  const view = useRef({ k: 1, tx: 0, ty: 0 })
+  const vb = useRef({ x: 0, y: 0, w: W, h: H })
   const panned = useRef(false)
   const api = useRef({})
 
-  // تفاعل التحريك/التكبير عبر مستمعات pointer أصلية (تعمل مع اللمس والفأرة بسلاسة)
   useEffect(() => {
     const el = wrapRef.current
     const svg = svgRef.current
     if (!el || !svg) return
 
-    const size = () => { const r = el.getBoundingClientRect(); return [r.width, r.height] }
-    const clampView = () => {
-      const [w, h] = size(); const v = view.current
-      v.tx = clamp(v.tx, w * (1 - v.k), 0)
-      v.ty = clamp(v.ty, h * (1 - v.k), 0)
-    }
-    const apply = () => {
-      const v = view.current
-      svg.style.transform = `translate3d(${v.tx}px, ${v.ty}px, 0) scale(${v.k})`
-    }
-    const zoomAtPoint = (factor, cx, cy) => {
-      const v = view.current
-      const nk = clamp(v.k * factor, 1, MAX_K)
-      const wx = (cx - v.tx) / v.k
-      const wy = (cy - v.ty) / v.k
-      v.k = nk; v.tx = cx - wx * nk; v.ty = cy - wy * nk
-      clampView(); apply()
-    }
+    const size = () => { const r = el.getBoundingClientRect(); return [r.width || 1, r.height || 1] }
+    const setVB = () => { const v = vb.current; svg.setAttribute('viewBox', `${v.x} ${v.y} ${v.w} ${v.h}`) }
 
-    api.current.zoomCenter = (f) => { const [w, h] = size(); zoomAtPoint(f, w / 2, h / 2) }
-    api.current.reset = () => { view.current = { k: 1, tx: 0, ty: 0 }; apply() }
-    apply()
+    const zoom = (factor, cx, cy) => {
+      const [vpW, vpH] = size()
+      const v = vb.current
+      const newW = clamp(v.w / factor, W / MAX_K, W)
+      const newH = newW * (H / W)
+      const px = v.x + (cx / vpW) * v.w   // النقطة تحت المؤشّر (إحداثيات العالم)
+      const py = v.y + (cy / vpH) * v.h
+      const nx = clamp(px - (cx / vpW) * newW, 0, W - newW)
+      const ny = clamp(py - (cy / vpH) * newH, 0, H - newH)
+      vb.current = { x: nx, y: ny, w: newW, h: newH }
+      setVB()
+    }
+    api.current.zoomCenter = (f) => { const [vpW, vpH] = size(); zoom(f, vpW / 2, vpH / 2) }
+    api.current.reset = () => { vb.current = { x: 0, y: 0, w: W, h: H }; setVB() }
+    setVB()
 
     let drag = null
     let raf = 0
     const onMove = (e) => {
       if (!drag) return
-      const dx = e.clientX - drag.x
-      const dy = e.clientY - drag.y
-      if (Math.abs(dx) + Math.abs(dy) > 3) panned.current = true
+      const [vpW, vpH] = size()
+      const v = vb.current
+      if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 3) panned.current = true
+      const dx = (e.clientX - drag.x) * (v.w / vpW)
+      const dy = (e.clientY - drag.y) * (v.h / vpH)
       drag.x = e.clientX; drag.y = e.clientY
-      const v = view.current
-      v.tx += dx; v.ty += dy
-      clampView()
-      if (!raf) raf = requestAnimationFrame(() => { raf = 0; apply() })
+      vb.current = { ...v, x: clamp(v.x - dx, 0, W - v.w), y: clamp(v.y - dy, 0, H - v.h) }
+      if (!raf) raf = requestAnimationFrame(() => { raf = 0; setVB() })
     }
     const onUp = () => {
       drag = null
@@ -89,7 +84,7 @@ export default function WorldMap({
     const onWheel = (e) => {
       e.preventDefault()
       const r = el.getBoundingClientRect()
-      zoomAtPoint(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top)
+      zoom(e.deltaY < 0 ? 1.2 : 1 / 1.2, e.clientX - r.left, e.clientY - r.top)
     }
 
     el.addEventListener('pointerdown', onDown)

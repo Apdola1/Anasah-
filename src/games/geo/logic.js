@@ -74,33 +74,39 @@ export function activeSeats(room) {
     .filter((i) => i !== null)
 }
 
-// بدء اللعبة → عدّ تنازلي (٣٢١) يشوفه الجميع
+// بدء اللعبة → مرحلة اختيار الدول السرية
 export function startGame(state, seats) {
   if (state.phase !== 'lobby') return null
   if (seats.length < MIN_TO_START) return null
-  return { ...createInitialState(), phase: 'countdown', countAt: Date.now() }
+  return { ...createInitialState(), phase: 'secret' }
 }
 
-// انتهى العدّ → مرحلة اختيار الدولة السرية
-export function startSecret(state) {
+// هل اختار جميع اللاعبين دولهم؟
+export function allChosen(state, seats) {
+  return seats.length > 0 && seats.every((s) => state.secrets[s] !== undefined)
+}
+
+// المضيف يبدأ بعد اكتمال الاختيار → عدّ تنازلي ٣٢١ يشوفه الجميع
+export function startCountdown(state, seats) {
+  if (state.phase !== 'secret') return null
+  if (!allChosen(state, seats)) return null
+  return { ...state, phase: 'countdown', countAt: Date.now() }
+}
+
+// انتهى العدّ → بدء الأدوار
+export function beginPlaying(state, seats) {
   if (state.phase !== 'countdown') return null
-  return { ...state, phase: 'secret' }
+  const order = [...seats]
+  const guesses = {}
+  for (const s of seats) guesses[s] = []
+  return { ...state, phase: 'playing', order, turn: order[0], guesses }
 }
 
-// لاعب يختار (أو يغيّر) دولته السرية أثناء مرحلة السرّ
-export function chooseSecret(state, seat, iso, seats) {
+// لاعب يختار (أو يغيّر) دولته السرية أثناء مرحلة السرّ (بلا انتقال تلقائي)
+export function chooseSecret(state, seat, iso) {
   if (state.phase !== 'secret') return null
   if (!countryOf(iso)) return null
-  const secrets = { ...state.secrets, [seat]: iso }
-  // إذا اختار الجميع → ابدأ الأدوار
-  const allChosen = seats.every((s) => secrets[s] !== undefined)
-  if (allChosen) {
-    const order = [...seats]
-    const guesses = {}
-    for (const s of seats) guesses[s] = []
-    return { ...state, secrets, phase: 'playing', order, turn: order[0], guesses }
-  }
-  return { ...state, secrets }
+  return { ...state, secrets: { ...state.secrets, [seat]: iso } }
 }
 
 // أقرب خصم (مقعده + المسافة) لتخمين معيّن

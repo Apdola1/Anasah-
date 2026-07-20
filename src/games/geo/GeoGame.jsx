@@ -2,7 +2,8 @@
 // المراحل: lobby → secret (اختيار سري) → playing (أدوار تخمين) → over
 import { useState, useEffect } from 'react'
 import {
-  MIN_TO_START, COUNTDOWN_MS, activeSeats, startGame, startSecret, chooseSecret, makeGuess, resetGame,
+  MIN_TO_START, COUNTDOWN_MS, activeSeats, startGame, startCountdown, beginPlaying,
+  chooseSecret, makeGuess, resetGame,
 } from './logic'
 import { countryOf } from './countries'
 import WorldMap from './WorldMap'
@@ -38,15 +39,13 @@ function Countdown({ state, isHost, commit }) {
   useEffect(() => {
     if (!isHost) return
     const delay = Math.max(0, COUNTDOWN_MS - (Date.now() - start)) + 200
-    const t = setTimeout(() => commit((s) => startSecret(s)), delay)
+    const t = setTimeout(() => commit((s, room) => beginPlaying(s, activeSeats(room))), delay)
     return () => clearTimeout(t)
   }, [isHost, start, commit])
 
   return (
-    <div className="geo">
-      <div className="geo-count-label">تستعدّون…</div>
-      <div className="geo-count" key={left}>{left > 0 ? left : 'ابدأوا!'}</div>
-      <div className="geo-note">اللعبة بدأت 🎬</div>
+    <div className="geo geo-count-screen">
+      {left > 0 && <div className="geo-count" key={left}>{left}</div>}
     </div>
   )
 }
@@ -70,10 +69,12 @@ function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
   )
 }
 
-function SecretPhase({ state, seat, seats, commit }) {
+function SecretPhase({ state, seat, seats, isHost, commit }) {
   const mySecret = seat !== null ? state.secrets[seat] : undefined
-  const pick = (iso) => commit((s, room) => chooseSecret(s, seat, iso, activeSeats(room)))
+  const pick = (iso) => commit((s) => chooseSecret(s, seat, iso))
   const chosenCount = seats.filter((s) => state.secrets[s] !== undefined).length
+  const everyoneChose = chosenCount === seats.length
+  const begin = () => commit((s, room) => startCountdown(s, activeSeats(room)))
 
   if (seat === null) {
     return <div className="geo"><h2 className="geo-title">👀 متفرّج</h2><div className="geo-note">اللاعبون يختارون دولهم السرية…</div></div>
@@ -86,7 +87,14 @@ function SecretPhase({ state, seat, seats, commit }) {
         {mySecret ? <>اخترت: <b className="geo-hl">{countryOf(mySecret)?.ar}</b> — تقدر تغيّرها بالضغط على دولة ثانية</> : 'اضغط على دولة في الخريطة (كبّر عشان تختار بدقة)'}
       </div>
       <WorldMap onPick={pick} selectable pinIso={mySecret || null} />
-      <div className="geo-progress">اختار {chosenCount}/{seats.length} — {mySecret ? 'بانتظار البقية…' : 'دورك'}</div>
+      <div className="geo-progress">اختار {chosenCount}/{seats.length}</div>
+      {isHost ? (
+        <button className="btn btn-primary" disabled={!everyoneChose} onClick={begin}>
+          {everyoneChose ? 'بدء اللعبة 🚀' : 'بانتظار اختيار الجميع…'}
+        </button>
+      ) : (
+        <div className="notice">{everyoneChose ? 'بانتظار بدء المضيف… ⏳' : (mySecret ? 'بانتظار البقية…' : 'دورك — اختر دولتك')}</div>
+      )}
     </div>
   )
 }
