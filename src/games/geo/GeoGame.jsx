@@ -1,10 +1,11 @@
 // واجهة لعبة الجغرافيا — متعددة اللاعبين (٢+)
 // المراحل: lobby → secret (اختيار سري) → playing (أدوار تخمين) → over
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   MIN_TO_START, COUNTDOWN_MS, activeSeats, startGame, startCountdown, beginPlaying,
   chooseSecret, makeGuess, resetGame,
 } from './logic'
+import { sfx } from '../../lib/sound'
 import { countryOf } from './countries'
 import WorldMap from './WorldMap'
 import './geo.css'
@@ -35,6 +36,13 @@ function Countdown({ state, isHost, commit }) {
     const id = setInterval(tick, 100)
     return () => clearInterval(id)
   }, [start])
+
+  // نبضة صوت مع كل رقم في العدّاد
+  const prevLeft = useRef(null)
+  useEffect(() => {
+    if (left !== prevLeft.current && left > 0) sfx.tick()
+    prevLeft.current = left
+  }, [left])
 
   useEffect(() => {
     if (!isHost) return
@@ -105,6 +113,11 @@ function Playing({ state, seat, seats, nameOf, commit }) {
   const mySecret = seat !== null ? state.secrets[seat] : undefined
   const myGuesses = seat !== null ? (state.guesses[seat] || []) : []
   const guessedIsos = myGuesses.map((g) => g.iso)
+
+  // صوت انطلاق اللعب مرة واحدة، وصوت تنبيه كل ما يجي دورك
+  const started = useRef(false)
+  useEffect(() => { if (!started.current) { started.current = true; sfx.go() } }, [])
+  useEffect(() => { if (myTurn) sfx.turn() }, [myTurn])
 
   const confirmGuess = () => {
     const iso = pending
@@ -181,6 +194,9 @@ function GameOver({ state, seat, seats, nameOf, isHost, commit }) {
   const iWon = state.winner === seat
   const mySecret = seat !== null ? state.secrets[seat] : null
   const reset = () => commit(() => resetGame())
+
+  useEffect(() => { if (iWon) sfx.win(); else sfx.lose() }, [iWon])
+
   return (
     <div className="geo">
       <div className={`geo-verdict ${iWon ? 'good' : 'bad'}`}>
