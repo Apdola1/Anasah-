@@ -65,7 +65,14 @@ export function createInitialState() {
     guesses: {},      // { [مقعد]: [{ iso, km, dir, heat, hit }] }
     winner: null,     // مقعد الفائز
     countAt: null,    // طابع زمني لبداية العد التنازلي
+    settings: { showArrows: true }, // إظهار أسهم الاتجاه نحو الدولة
   }
+}
+
+// المضيف يعدّل الإعدادات (في اللوبي فقط)
+export function updateSettings(state, patch) {
+  if (state.phase !== 'lobby') return null
+  return { ...state, settings: { ...(state.settings || { showArrows: true }), ...patch } }
 }
 
 export function activeSeats(room) {
@@ -78,7 +85,7 @@ export function activeSeats(room) {
 export function startGame(state, seats) {
   if (state.phase !== 'lobby') return null
   if (seats.length < MIN_TO_START) return null
-  return { ...createInitialState(), phase: 'secret' }
+  return { ...createInitialState(), settings: state.settings || { showArrows: true }, phase: 'secret' }
 }
 
 // هل اختار جميع اللاعبين دولهم؟
@@ -152,6 +159,7 @@ export function makeGuess(state, seat, iso, seats) {
   return { ...state, guesses, turn: nextTurn }
 }
 
-export function resetGame() {
-  return createInitialState()
+export function resetGame(state) {
+  const init = createInitialState()
+  return { ...init, settings: state?.settings || init.settings }
 }

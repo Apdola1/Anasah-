@@ -40,7 +40,7 @@ function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
   )
 }
 
-function ProgressScores({ state, seats, nameOf, seat }) {
+function ProgressScores({ state, nameOf, seat }) {
   const ranked = rankings(state.scores)
   return (
     <div className="tv-scores">
@@ -95,6 +95,7 @@ function RevealView({ state, seat, seats, nameOf, isHost, commit }) {
   const roundAnswers = state.answers[qi] || {}
   const myAnswer = seat !== null ? roundAnswers[seat] : undefined
   const iGotIt = myAnswer === q.correct
+  const myGain = seat !== null ? (state.gains?.[qi]?.[seat] ?? 0) : 0
   const isLast = state.current + 1 >= state.qIndices.length
 
   const next = () => commit((s) => nextQuestion(s))
@@ -118,7 +119,9 @@ function RevealView({ state, seat, seats, nameOf, isHost, commit }) {
       </div>
       {seat !== null && (
         <div className={`tv-verdict ${iGotIt ? 'good' : 'bad'}`}>
-          {iGotIt ? 'إجابة صحيحة! +نقاط 🎉' : (myAnswer === undefined ? 'ما جاوبت ⏱️' : 'إجابة خاطئة 😅')}
+          {iGotIt
+            ? (myGain > 0 ? `إجابة صحيحة! +${myGain} 🎉` : 'إجابة صحيحة (بدون نقاط — سبقك غيرك) ✅')
+            : (myAnswer === undefined ? 'ما جاوبت ⏱️' : 'إجابة خاطئة')}
         </div>
       )}
       <ProgressScores state={state} seats={seats} nameOf={nameOf} seat={seat} />

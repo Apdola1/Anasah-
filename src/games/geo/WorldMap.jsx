@@ -24,7 +24,7 @@ const MAX_K = 8 // أقصى تكبير (viewBox أصغر ما يكون = W/MAX_K
 
 export default function WorldMap({
   guesses = [], onPick, selectable = true, revealIso = null,
-  pinIso = null, pendingIso = null, disabledIsos = [],
+  pinIso = null, pendingIso = null, disabledIsos = [], showArrows = true,
 }) {
   const wrapRef = useRef(null)
   const svgRef = useRef(null)
@@ -145,7 +145,7 @@ export default function WorldMap({
             <circle cx={pinPt.x} cy={pinPt.y} r="2.4" fill="#ffd479" />
           </g>
         )}
-        {lastPt && last.bearing != null && !last.hit && (
+        {showArrows && lastPt && last.bearing != null && !last.hit && (
           <g transform={`translate(${lastPt.x} ${lastPt.y}) rotate(${last.bearing})`}>
             <path d="M0,-16 L4,-7 L1,-7 L1,0 L-1,0 L-1,-7 L-4,-7 Z" fill="#fff" stroke="#0008" strokeWidth="0.4" />
           </g>
@@ -153,7 +153,7 @@ export default function WorldMap({
       </>
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [guesses, onPick, selectable, revealIso, pinIso, pendingIso, disabledIsos])
+  }, [guesses, onPick, selectable, revealIso, pinIso, pendingIso, disabledIsos, showArrows])
 
   return (
     <div className="geo-map-wrap">

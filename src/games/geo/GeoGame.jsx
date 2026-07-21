@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   MIN_TO_START, COUNTDOWN_MS, activeSeats, startGame, startCountdown, beginPlaying,
-  chooseSecret, makeGuess, resetGame,
+  chooseSecret, makeGuess, resetGame, updateSettings,
 } from './logic'
 import { sfx } from '../../lib/sound'
 import { countryOf } from './countries'
@@ -58,9 +58,11 @@ function Countdown({ state, isHost, commit }) {
   )
 }
 
-function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
+function Lobby({ state, seat, seats, nameOf, isHost, commit, code }) {
   const enough = seats.length >= MIN_TO_START
+  const showArrows = state.settings?.showArrows !== false
   const start = () => commit((s, room) => startGame(s, activeSeats(room)))
+  const toggleArrows = () => commit((s) => updateSettings(s, { showArrows: !showArrows }))
   return (
     <div className="geo">
       <div className="geo-emoji-big">🌍</div>
@@ -68,6 +70,14 @@ function Lobby({ seat, seats, nameOf, isHost, commit, code }) {
       <div className="geo-share">شارك الكود مع صاحبك:<div className="room-code">{code}</div></div>
       <Chips seats={seats} nameOf={nameOf} seat={seat} />
       <div className="geo-note">{seats.length} لاعبين — نحتاج {MIN_TO_START} على الأقل</div>
+
+      {isHost && (
+        <button className={`geo-switch${showArrows ? ' on' : ''}`} onClick={toggleArrows}>
+          <span>أسهم الاتجاه نحو الدولة؟</span>
+          <span className="geo-switch-knob" />
+        </button>
+      )}
+
       {isHost ? (
         <button className="btn btn-primary" disabled={!enough} onClick={start}>ابدأ اللعبة</button>
       ) : (
@@ -113,6 +123,8 @@ function Playing({ state, seat, seats, nameOf, commit }) {
   const mySecret = seat !== null ? state.secrets[seat] : undefined
   const myGuesses = seat !== null ? (state.guesses[seat] || []) : []
   const guessedIsos = myGuesses.map((g) => g.iso)
+  const showArrows = state.settings?.showArrows !== false
+  const opponents = seats.filter((s) => s !== seat)
 
   // صوت انطلاق اللعب مرة واحدة، وصوت تنبيه كل ما يجي دورك
   const started = useRef(false)
@@ -142,6 +154,7 @@ function Playing({ state, seat, seats, nameOf, commit }) {
         pinIso={mySecret || null}
         pendingIso={pending}
         disabledIsos={guessedIsos}
+        showArrows={showArrows}
       />
 
       {myTurn && pending && (
@@ -158,10 +171,20 @@ function Playing({ state, seat, seats, nameOf, commit }) {
       <div className="geo-guesses">
         <div className="geo-guesses-title">تخميناتك ({myGuesses.length})</div>
         {myGuesses.length === 0 ? (
-          <span className="muted">ابدأ التخمين لتشوف المسافة والاتجاه</span>
+          <span className="muted">ابدأ التخمين لتشوف المسافة{showArrows ? ' والاتجاه' : ''}</span>
         ) : (
-          [...myGuesses].reverse().map((g, i) => <GuessRow key={i} g={g} />)
+          [...myGuesses].reverse().map((g, i) => <GuessRow key={i} g={g} showArrows={showArrows} />)
         )}
+      </div>
+
+      {/* سباق الخصوم: آخر تخمين لكل خصم ومدى اقترابه من هدفه */}
+      <div className="geo-rivals">
+        <div className="geo-guesses-title">سباق الخصوم 🐴</div>
+        {opponents.map((s) => {
+          const gs = state.guesses[s] || []
+          const last = gs.length ? gs[gs.length - 1] : null
+          return <RivalRow key={s} name={nameOf(s)} last={last} count={gs.length} isTurn={state.turn === s} />
+        })}
       </div>
 
       <Chips seats={seats} nameOf={nameOf} seat={seat} active={state.turn} />
@@ -169,9 +192,10 @@ function Playing({ state, seat, seats, nameOf, commit }) {
   )
 }
 
-function GuessRow({ g }) {
+const HEAT_EMOJI = { hit: '🎯', hot: '🔥', warm: '🟠', cool: '🔵', cold: '🧊' }
+
+function GuessRow({ g, showArrows = true }) {
   const c = countryOf(g.iso)
-  const heatEmoji = { hit: '🎯', hot: '🔥', warm: '🟠', cool: '🔵', cold: '🧊' }[g.heat]
   return (
     <div className={`geo-guess-row${g.hit ? ' hit' : ''}`}>
       <b className="geo-guess-name">{c?.ar}</b>
@@ -180,10 +204,33 @@ function GuessRow({ g }) {
       ) : (
         <>
           <span className="geo-guess-km">{g.km.toLocaleString('en-US')} كم</span>
-          <svg className="geo-guess-arrow" viewBox="-8 -18 16 20" width="16" height="18" style={{ transform: `rotate(${g.bearing}deg)` }} aria-hidden="true">
-            <path d="M0,-16 L4,-7 L1,-7 L1,0 L-1,0 L-1,-7 L-4,-7 Z" fill="currentColor" />
-          </svg>
-          <span className="geo-guess-heat">{heatEmoji}</span>
+          {showArrows && (
+            <svg className="geo-guess-arrow" viewBox="-8 -18 16 20" width="16" height="18" style={{ transform: `rotate(${g.bearing}deg)` }} aria-hidden="true">
+              <path d="M0,-16 L4,-7 L1,-7 L1,0 L-1,0 L-1,-7 L-4,-7 Z" fill="currentColor" />
+            </svg>
+          )}
+          <span className="geo-guess-heat">{HEAT_EMOJI[g.heat]}</span>
+        </>
+      )}
+    </div>
+  )
+}
+
+// صف خصم في «سباق الخصوم»: اسمه، آخر دولة خمّنها، ومدى حرارته (قربه من صيد أحد)
+function RivalRow({ name, last, count, isTurn }) {
+  return (
+    <div className={`geo-rival-row${last?.hit ? ' hit' : ''}${isTurn ? ' turn' : ''}`}>
+      <b className="geo-rival-name">{name}{isTurn ? ' 🎯' : ''}</b>
+      {!last ? (
+        <span className="muted">لم يخمّن بعد</span>
+      ) : last.hit ? (
+        <span className="geo-guess-hit">🎯 صاد دولة!</span>
+      ) : (
+        <>
+          <span className="geo-rival-guess">{countryOf(last.iso)?.ar}</span>
+          <span className="geo-guess-km">{last.km.toLocaleString('en-US')} كم</span>
+          <span className="geo-guess-heat">{HEAT_EMOJI[last.heat]}</span>
+          <span className="muted geo-rival-count">({count})</span>
         </>
       )}
     </div>
@@ -193,7 +240,7 @@ function GuessRow({ g }) {
 function GameOver({ state, seat, seats, nameOf, isHost, commit }) {
   const iWon = state.winner === seat
   const mySecret = seat !== null ? state.secrets[seat] : null
-  const reset = () => commit(() => resetGame())
+  const reset = () => commit((s) => resetGame(s))
 
   useEffect(() => { if (iWon) sfx.win(); else sfx.lose() }, [iWon])
 

@@ -3,8 +3,8 @@
 import { QUESTIONS, pickQuestions } from './questions'
 
 export const QUESTIONS_PER_GAME = 7
-export const POINTS_CORRECT = 10
-export const BONUS_FIRST = 5 // مكافأة لأول من يجاوب صح
+export const POINTS_FIRST = 2  // أسرع من يجاوب صح
+export const POINTS_SECOND = 1 // الذي يليه
 
 export function createInitialState() {
   return {
@@ -12,7 +12,8 @@ export function createInitialState() {
     qIndices: [],   // فهارس الأسئلة المختارة من البنك
     current: 0,     // رقم السؤال الحالي (0..n-1)
     answers: {},    // { [current]: { [seat]: optionIndex } }
-    scores: {},     // { [seat]: نقاط }
+    gains: {},      // { [current]: { [seat]: نقاط هذا السؤال } }
+    scores: {},     // { [seat]: مجموع النقاط }
   }
 }
 
@@ -39,6 +40,7 @@ export function startGame(state, seats) {
     qIndices: pickQuestions(QUESTIONS_PER_GAME, 'trivia'),
     current: 0,
     answers: {},
+    gains: {},
     scores,
   }
 }
@@ -53,19 +55,21 @@ export function answerQuestion(state, seat, optionIndex, seats) {
 
   const correct = QUESTIONS[state.qIndices[qi]].correct
   const isCorrect = optionIndex === correct
-  const someoneCorrectBefore = Object.values(prev).some((o) => o === correct)
+  // كم عدد من أجاب صح قبل هذا اللاعب (prev = الإجابات الأسبق زمنياً)
+  const correctBefore = Object.values(prev).filter((o) => o === correct).length
 
   let gain = 0
   if (isCorrect) {
-    gain = POINTS_CORRECT
-    if (!someoneCorrectBefore) gain += BONUS_FIRST
+    if (correctBefore === 0) gain = POINTS_FIRST       // الأسرع
+    else if (correctBefore === 1) gain = POINTS_SECOND // الذي يليه
   }
 
   const answers = { ...state.answers, [qi]: { ...prev, [seat]: optionIndex } }
+  const gains = { ...state.gains, [qi]: { ...(state.gains[qi] || {}), [seat]: gain } }
   const scores = { ...state.scores, [seat]: (state.scores[seat] || 0) + gain }
   const allAnswered = seats.every((s) => answers[qi][s] !== undefined)
 
-  return { ...state, answers, scores, phase: allAnswered ? 'reveal' : 'question' }
+  return { ...state, answers, gains, scores, phase: allAnswered ? 'reveal' : 'question' }
 }
 
 // إجبار كشف الإجابة (المضيف)

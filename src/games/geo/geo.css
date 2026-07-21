@@ -72,6 +72,61 @@
 
 .geo-hl { color: var(--accent); }
 
+/* زر تبديل الإعدادات (سويتش) */
+.geo-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+.geo-switch.on { border-color: var(--accent); background: var(--accent-bg, rgba(255,180,84,0.12)); }
+.geo-switch-knob {
+  position: relative;
+  width: 44px; height: 26px;
+  border-radius: 999px;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+.geo-switch-knob::after {
+  content: '';
+  position: absolute;
+  top: 3px; inset-inline-start: 3px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: inset-inline-start 0.2s ease;
+}
+.geo-switch.on .geo-switch-knob { background: var(--accent); }
+.geo-switch.on .geo-switch-knob::after { inset-inline-start: 21px; }
+
+/* سباق الخصوم */
+.geo-rivals { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.geo-rival-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+.geo-rival-row.turn { border-color: var(--accent); }
+.geo-rival-row.hit { border-color: var(--good); background: rgba(74, 222, 128, 0.12); }
+.geo-rival-name { flex: 1; text-align: start; font-size: 15px; }
+.geo-rival-guess { font-weight: 700; }
+.geo-rival-count { font-size: 13px; }
+
 /* العدّ التنازلي ٣ ٢ ١ */
 .geo-count-screen { min-height: 50vh; justify-content: center; }
 .geo-count {

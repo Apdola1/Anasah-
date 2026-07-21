@@ -254,8 +254,42 @@ function Results({ state, seat, seats, nameOf, isHost, commit }) {
   const iCaught = myVote !== undefined && myVote === state.impostorSeat
   const reset = () => commit((s) => resetGame(s))
 
+  // مشهد كشف تفاعلي: عجلة تدور على الأسماء ثم تقف على الإمبوستر
+  const order = seats
+  const landIdx = Math.max(0, order.indexOf(state.impostorSeat))
+  const [idx, setIdx] = useState(0)
+  const [revealed, setRevealed] = useState(false)
+  const timer = useRef(null)
+  useEffect(() => {
+    const loops = 4
+    const totalSteps = loops * order.length + landIdx
+    let step = 0
+    const tick = () => {
+      setIdx(step % order.length)
+      if (step >= totalSteps) { setRevealed(true); return }
+      const remaining = totalSteps - step
+      const delay = remaining <= 12 ? 90 + (12 - remaining) * 34 : 65
+      step++
+      timer.current = setTimeout(tick, delay)
+    }
+    tick()
+    return () => clearTimeout(timer.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (!revealed) {
+    return (
+      <div className="imp">
+        <h2 className="imp-title">مين كان الإمبوستر؟ 🥷</h2>
+        <div className="imp-wheel">🎰 {nameOf(order[idx])}</div>
+        <div className="imp-note">جاري الكشف…</div>
+        <PlayerChips seats={seats} nameOf={nameOf} seat={seat} active={order[idx]} />
+      </div>
+    )
+  }
+
   return (
-    <div className="imp">
+    <div className="imp imp-reveal-in">
       <div className={`imp-verdict ${iCaught ? 'good' : 'bad'}`}>
         {iCaught ? 'صدت الإمبوستر يا فنان! 🎯' : 'الإمبوستر فلت! 🥷💨'}
       </div>

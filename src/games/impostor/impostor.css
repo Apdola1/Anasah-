@@ -212,6 +212,13 @@
 .imp-verdict.good { color: var(--good); border-color: var(--good); }
 .imp-verdict.bad { color: var(--accent-2); border-color: var(--accent-2); }
 
+/* دخول مشهد النتائج بعد الكشف */
+.imp-reveal-in { animation: imp-reveal 0.45s ease; }
+@keyframes imp-reveal {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 .imp-section {
   width: 100%;
   padding: 14px 16px;
