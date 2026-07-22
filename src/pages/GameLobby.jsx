@@ -4,7 +4,7 @@ import { getGame } from '../games/registry'
 import { useAuth } from '../lib/auth'
 import { getSavedName, saveName } from '../lib/auth'
 import { createRoom, joinRoom } from '../lib/rooms'
-import { isFirebaseConfigured } from '../firebase'
+import { isFirebaseConfigured, track } from '../firebase'
 
 export default function GameLobby() {
   const { gameId } = useParams()
@@ -35,6 +35,7 @@ export default function GameLobby() {
     setBusy(true)
     try {
       const roomCode = await createRoom(gameId, user.uid, name.trim())
+      track('room_created', { game: gameId })
       navigate(`/g/${gameId}/${roomCode}`)
     } catch (e) {
       setError(e.message)
@@ -52,6 +53,7 @@ export default function GameLobby() {
       const roomCode = code.trim().toUpperCase()
       // نوجّه للّعبة الفعلية للغرفة، مو بالضرورة لعبة هذا اللوبي (الكود موحّد)
       const { gameId: roomGameId } = await joinRoom(roomCode, user.uid, name.trim())
+      track('room_joined', { game: roomGameId })
       navigate(`/g/${roomGameId}/${roomCode}`)
     } catch (e) {
       setError(e.message)

@@ -3,6 +3,7 @@
 import { initializeApp } from 'firebase/app'
 import { initializeFirestore } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
+import { getAnalytics, isSupported as analyticsSupported, logEvent } from 'firebase/analytics'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,6 +12,7 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
 export const isFirebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId)
@@ -19,6 +21,7 @@ export const isFirebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseCon
 // قبل ما تعبّي الإعدادات — الصفحة تفتح وتطلع لك رسالة توضّح كيف تربطه.
 let db = null
 let auth = null
+let analytics = null
 
 if (isFirebaseConfigured) {
   const app = initializeApp(firebaseConfig)
@@ -29,8 +32,23 @@ if (isFirebaseConfigured) {
     experimentalAutoDetectLongPolling: true,
   })
   auth = getAuth(app)
+
+  // Google Analytics — بنمط الفشل الآمن: لو المعرّف ناقص أو البيئة ما تدعمه
+  // (مانع إعلانات، متصفح قديم…) يتجاهل بصمت والتطبيق يكمل عادي.
+  if (firebaseConfig.measurementId) {
+    analyticsSupported()
+      .then((ok) => { if (ok) analytics = getAnalytics(app) })
+      .catch(() => { /* تجاهل — التتبع كماليات */ })
+  }
 } else {
   console.warn('⚠️ إعدادات Firebase ناقصة — عبّي ملف .env.local (شوف .env.example)')
+}
+
+// تسجيل حدث تتبّع — آمن دائماً، ما يرمي خطأ أبداً
+export function track(eventName, params) {
+  try {
+    if (analytics) logEvent(analytics, eventName, params)
+  } catch { /* تجاهل */ }
 }
 
 export { db, auth }

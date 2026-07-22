@@ -1,10 +1,16 @@
 // صفحة النمط الفردي — تعرض SoloComponent للعبة بدون غرفة أو تسجيل دخول
+import { useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getGame } from '../games/registry'
+import { track } from '../firebase'
 
 export default function SoloPage() {
   const { gameId } = useParams()
   const game = getGame(gameId)
+
+  useEffect(() => {
+    if (game?.SoloComponent) track('solo_started', { game: gameId })
+  }, [gameId, game])
 
   if (!game || !game.SoloComponent) {
     return (
