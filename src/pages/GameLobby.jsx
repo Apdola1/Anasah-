@@ -124,7 +124,7 @@ function HowToPlay({ steps }) {
   return (
     <div className="howto">
       <button className="howto-toggle" onClick={() => setOpen(!open)}>
-        <span>كيف تلعب؟ 🤔</span>
+        <span>كيف تلعب؟</span>
         <span className="howto-chev">{open ? '▲' : '▼'}</span>
       </button>
       {open && (
