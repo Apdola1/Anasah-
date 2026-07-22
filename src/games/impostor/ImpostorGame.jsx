@@ -193,7 +193,7 @@ function Reveal({ state, seat, seats, nameOf, isHost, commit }) {
           <div className="imp-role-emoji">🥷</div>
           <div className="imp-role-title">أنت الإمبوستر</div>
           <div className="imp-hint">تلميح: {state.topic.hint}</div>
-          <div className="imp-role-note">اندمج مع الجماعة… ولا ينكشف!</div>
+          <div className="imp-role-note">لحد يدري عنك!</div>
         </div>
       ) : (
         <div className="imp-role crew">
