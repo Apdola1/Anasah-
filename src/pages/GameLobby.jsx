@@ -68,6 +68,8 @@ export default function GameLobby() {
           <h2>{game.name}</h2>
         </div>
 
+        {game.howTo && <HowToPlay steps={game.howTo} />}
+
         {!isFirebaseConfigured && (
           <div className="notice error">
             إعدادات Firebase ناقصة — عبّي ملف <code>.env.local</code> عشان يشتغل الأونلاين.
@@ -112,6 +114,26 @@ export default function GameLobby() {
 
         {error && <div className="notice error">{error}</div>}
       </div>
+    </div>
+  )
+}
+
+// شرح مبسّط لطريقة اللعب — ظاهر افتراضياً وقابل للطيّ
+function HowToPlay({ steps }) {
+  const [open, setOpen] = useState(true)
+  return (
+    <div className="howto">
+      <button className="howto-toggle" onClick={() => setOpen(!open)}>
+        <span>كيف تلعب؟ 🤔</span>
+        <span className="howto-chev">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <ol className="howto-steps">
+          {steps.map((s, i) => (
+            <li key={i}>{s}</li>
+          ))}
+        </ol>
+      )}
     </div>
   )
 }
