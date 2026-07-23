@@ -1,8 +1,10 @@
 // واجهة لعبة الكلمة (Wordle عربي) — نمطا واضع/مخمّن و سباق (جماعي)
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { MAX_GUESSES, WORD_LEN, isValidLength, chooseMode, setSecret, submitGuess } from './logic'
-import GuessBoard, { Keyboard } from './GuessBoard'
+import GuessBoard from './GuessBoard'
 import './wordle.css'
+
+const ARABIC_ONLY = /[ء-ي]/g
 
 export default function WordleBoard({ state, seat, players, commit }) {
   if (state.phase === 'setup') {
@@ -115,11 +117,12 @@ function PlayBanner({ state, seat, players }) {
   return <div className={`wl-banner ${tone}`}>{text}</div>
 }
 
-// كاتب مستقل يُستخدم لكتابة الكلمة السرية في الإعداد (إدخال مُقنّع)
+// كاتب مستقل يُستخدم لكتابة الكلمة السرية في الإعداد (إدخال مُقنّع بلوحة الجهاز)
 function Typer({ title, onSubmit }) {
   const [draft, setDraft] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const inputRef = useRef(null)
 
   const submit = useCallback(async () => {
     if (busy) return
@@ -128,23 +131,18 @@ function Typer({ title, onSubmit }) {
     try { await onSubmit(draft) } catch { setError('صار خطأ، جرّب مرة ثانية'); setBusy(false) }
   }, [draft, busy, onSubmit])
 
-  const addLetter = useCallback((ch) => { setError(''); setDraft((d) => (d.length < WORD_LEN ? d + ch : d)) }, [])
-  const backspace = useCallback(() => { setError(''); setDraft((d) => d.slice(0, -1)) }, [])
-
-  useEffect(() => {
-    function onKey(e) {
-      if (e.key === 'Enter') { e.preventDefault(); submit() }
-      else if (e.key === 'Backspace') { e.preventDefault(); backspace() }
-      else if (/^[ء-ي]$/.test(e.key)) { addLetter(e.key) }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [submit, backspace, addLetter])
+  const onChange = (e) => {
+    const letters = (e.target.value.match(ARABIC_ONLY) || []).slice(0, WORD_LEN)
+    setError('')
+    setDraft(letters.join(''))
+  }
+  const onKeyDown = (e) => { if (e.key === 'Enter') { e.preventDefault(); submit() } }
+  const focusInput = () => inputRef.current?.focus()
 
   return (
     <div className="wl">
       <div className="wl-banner active">{title}</div>
-      <div className="wl-grid">
+      <div className="wl-grid" onClick={focusInput}>
         <div className="wl-row">
           {Array.from({ length: WORD_LEN }).map((_, c) => (
             <div key={c} className={`wl-tile secret${draft[c] ? ' filled' : ''}`}>
@@ -154,7 +152,26 @@ function Typer({ title, onSubmit }) {
         </div>
       </div>
       {error && <div className="wl-error">{error}</div>}
-      <Keyboard statuses={{}} onLetter={addLetter} onEnter={submit} onBack={backspace} busy={busy} />
+      <div className="wl-entry">
+        <input
+          ref={inputRef}
+          className="input wl-input"
+          type="password"
+          value={draft}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          inputMode="text"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          enterKeyHint="done"
+          placeholder="كلمتك السرية"
+          aria-label="كلمتك السرية"
+          autoFocus
+        />
+        <button className="btn btn-primary" onClick={submit} disabled={busy}>تأكيد</button>
+      </div>
     </div>
   )
 }

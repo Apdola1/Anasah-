@@ -73,33 +73,15 @@
   font-weight: 500;
 }
 
-/* لوحة المفاتيح */
-.wl-keyboard { display: flex; flex-direction: column; gap: 7px; width: min(500px, 96vw); }
-.wl-krow { display: flex; gap: 5px; justify-content: center; }
-.wl-key {
+/* الإدخال بلوحة مفاتيح الجهاز */
+.wl-entry {
+  display: flex;
+  gap: 10px;
+  width: min(360px, 92vw);
+}
+.wl-input {
   flex: 1;
-  max-width: 40px;
-  height: 50px;
-  display: grid;
-  place-items: center;
-  font-family: var(--sans);
-  font-size: 19px;
-  font-weight: 700;
-  border: none;
-  border-radius: 8px;
-  background: #453b66;
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.08s ease;
+  letter-spacing: normal;
+  font-size: 20px;
 }
-.wl-key:hover { background: #52477a; }
-.wl-key:active { transform: scale(0.94); }
-.wl-key.correct { background: var(--wl-correct); color: #0c2c17; }
-.wl-key.present { background: var(--wl-present); color: #2c1e05; }
-.wl-key.absent { background: var(--wl-absent); color: var(--text-dim); }
-.wl-key-wide {
-  max-width: 66px;
-  font-family: var(--display);
-  font-size: 15px;
-}
-.wl-key:disabled { opacity: 0.5; cursor: default; }
+.wl-entry .btn { flex-shrink: 0; }
